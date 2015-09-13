@@ -1,4 +1,4 @@
-# Face Kit
+# Face Kit for JavaScript
 
 UI library based on React, Immutable and Bootstrap.
 
