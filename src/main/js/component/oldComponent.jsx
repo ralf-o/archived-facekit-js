@@ -157,7 +157,7 @@ class Component {
     componentWillUnmount() {
     }
 
-    static getInitialState() {throw("xxx");
+    static getInitialState() {
        return Immutable.Map({});
     }
 
@@ -226,7 +226,7 @@ class FacekitToReactComponent extends React.Component {
             const
                state = this.state.data,
                nextState = facekitComponent.handleMessage(state, msg);
-console.log(111, state);
+
             if (!isValidComponentState(nextState)) {
                 throw new createComponentError(facekitComponent,
                         `FaceKit component method 'handleMessage' returned invalid next state: ${nextState}`);

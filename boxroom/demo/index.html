@@ -2,7 +2,7 @@
 
 <html>
 <head>
-    <title>Hello React!</title>
+    <title>Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
 
@@ -17,11 +17,18 @@
 <body>
 <div id="content"></div>
 
-<script type="text/jsx;harmony=true" src="../../../src/main/js/Component.jsx"></script>
-<script type="text/jsx;harmony=true" src="../../../src/main/js/Button.jsx"></script>
+<script type="text/jsx;harmony=true" src="../../../src/main/js/base/Component.js"></script>
+<script type="text/jsx;harmony=true" src="../../../src/main/js/base/Controller.js"></script>
+<script type="text/jsx;harmony=true" src="../../../src/main/js/base/View.js"></script>
+<script type="text/jsx;harmony=true" src="../../../src/main/js/base/List.js"></script>
+<script type="text/jsx;harmony=true" src="../../../src/main/js/base/Map.js"></script>
+
+<script type="text/jsx;harmony=true" src="../../../src/main/js/component/Counter.jsx"></script>
+
 <script type="text/jsx;harmony=true">
 
-React.render(<Button text="Counter:"/>, document.getElementById('content'));
+
+React.render(<Counter text="Counter:"/>, document.getElementById('content'));
 
 
 </script>
