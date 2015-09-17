@@ -1,0 +1,22 @@
+.w-checkbox * {
+    cursor: pointer;
+}
+
+.w-checkbox [type=checkbox]:first-of-type {
+    opacity: 0;
+}
+
+.w-checkbox.w-native [type=checkbox]:first-of-type {
+}
+
+.w-checkbox.fa:before {
+   cursor: pointer;
+   position: relative;
+   font-size: 18px;
+   left: 2px;
+   top: 3px;
+}
+
+.w-checkbox.w-disabled.fa:before {
+    cursor: default;
+}

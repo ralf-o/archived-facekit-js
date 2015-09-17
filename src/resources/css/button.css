@@ -1,0 +1,16 @@
+.w-button.w-has-text .w-icon.w-left {
+    xmargin-right: 0.5em;
+}
+
+.w-button.w-has-text .w-icon.w-right {
+    xmargin-left: 0.px;
+}
+
+.w-button.w-has-text .w-icon.w-top,
+.w-button.w-has-text .w-icon.w-bottom {
+    display: block;
+}
+
+.w-button span.caret {
+    margin-left: 4px;
+}

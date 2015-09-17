@@ -1,260 +1,131 @@
 'use strict';
 
 class Component {
-    constructor(viewClass, controllerClass) {
-        if (!(viewClass.prototype instanceof View)) {
-            throw new TypeError("[Component.constructor] First argument 'viewClass' must extend class View");
-        } else if (!(controllerClass.prototype instanceof Controller)) {
-            throw new TypeError("[Component.constructor] Second argument 'component' must extends class Controller");
+    static mount(component, target) {
+        throw "TODO";
+    }
+
+    static createClass(config) {
+        if (config === null || typeof config !== 'object') {
+            throw new TypeError("[Component.createClass] First argument 'config' must be an object");
         }
 
-        this.__viewClass = viewClass;
-        this.__controllerClass = controllerClass;
-    }
+        const {typeName, view, stateTransitions, initialState, defaultProps} = config;
 
-    getViewClass() {
-        return this.__viewClass;
-    }
+        if (typeName === undefined || typeName === null) {
+           throw new TypeError("[Component.createClass] No 'typeName' provided in configuration object");
+        } else if (typeof typeName !== 'string' || typeName !== typeName.trim()) {
+            throw new TypeError("[Component.createClass] Invalid 'typeName' provided in configuration object");
+        } else if (view === undefined) {
+            throw new TypeError("[Component.createClass] No 'view' provided in configuration object");
+        } else if (view === null || (typeof view !== 'function' && typeof view !== 'object')) {
+            throw new TypeErorr("[Component.createClass] Invalid 'view' provided in configuration object");
+        } else if (typeof view !== 'function') {
+            if (view.renderView === undefined) {
+                throw new TypeError("[Component.createClass] No 'renderView' function provided in 'view' object");
+            } else if (typeof view.renderView !== 'function') {
+                throw new TypeError("[Component.createClass] Invalid 'renderView' function provided in 'view' object");
+            } else if (view.initView !== undefined && view.initView !== null && typeof view.initView !== 'function') {
+                throw new TypeError("[Component.createClass] Invalid 'initView' function provided in 'view' object");
+            } else if (view.disposeView !== undefined && view.disposeView !== null
+                    && typeof view.disposeView !== 'function') {
+                throw new TypeError("[Component.createClass] Invalid 'disposeView' function provided in 'view' object");
+            }
+        } else if (stateTransitions !== undefined && stateTransitions !== null
+                && typeof stateTransitions !== 'object') {
+            throw new TypeError("[Component.createClass] Invalid 'stateTransition' provided in configuration object");
+        } else if (initialState !== undefined && initialState !== null && typeof initialState !== 'object') {
+            throw new TypeError("[Component.createClass] Invalid 'initialState' provided int configuration object");
+        }
 
-    getControllerClass() {
-        return this.__controllerClass;
-    }
+        const newClass = function () {};
+        newClass.prototype = Object.create(Component.prototype);
 
-    componentWillMount() {
-    }
+        newClass.getTypeName = () => typeName;
+        newClass.getView = () => view;
+        newClass.getStateTransitions = () => normalizeStateTransitions(stateTransitions);
+        newClass.getInitialState = () => normalizeInitialState(initialState);
+        newClass.getDefaultProps = () => normalizeProps(defaultProps);
 
-    componentDidMount() {
-    }
-
-    componentWillUnmount() {
-    }
-
-    shouldComponentUpdate(props, nextProps, state, nextState) {
-        return true; // TODO
-    }
-
-    componentWillUpdate(props, nextProps, state, nextState) {
-    }
-
-    componentDidUpdate(props, prevProps, state, prevState) {
+        return newClass;
     }
 
     static toReact(componentClass) {
-        if (typeof componentClass !== 'function' || !(componentClass.prototype instanceof Component)) {
-            throw new TypeError("[Component.toReact] First parameter 'componentClass' must be a valid component class");
+        if (!componentClass || !(componentClass.prototype instanceof Component)) {
+            throw new TypeError("[Component.toReact] First argument 'componentClass' is not really a component class");
         }
 
-        if (getTypeNameByComponentClass(componentClass) === null) {
-            throw new Error("[Component.toReact] First parameter 'componentClass' must be a valid component class "
-                    + "which implements the static method 'getTypeName' properly "
-                    + '(must return a non-empty string without leading or trailing whitespace)');
-        }
+        var ret = null;
 
-        const factory = () => {
-            const
-                component = new componentClass(),
+        const
+            typeName = componentClass.getTypeName(),
+            view = componentClass.getView(),
+            stateTransitions = componentClass.getStateTransitions(),
+            initialState = componentClass.getInitialState(),
+            defaultProps = componentClass.getDefaultProps().toJS(), // TODO!!!
+            sender = (reactComponent) => (transitionId, ...args) => {
+                const
+                    transition = stateTransitions[transitionId],
+                    oldState = reactComponent.state.data,
+                    newState = transition(...args)(reactComponent.state.data, reactComponent.context);
+                    printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args);
+                    reactComponent.setState({data: newState});
+                 return newState;
+            };
 
-                reactConstructor = function () {
-                    ReactComponent.call(this, component, componentClass);
-                    component.__reactComponent = this;
-                };
-
-            reactConstructor.prototype = new ReactComponent(null, null);
-            reactConstructor.initialState = getInitialState(componentClass);
-            return new reactConstructor();
-        };
-
-        return factory;
-    }
-
-    static getInitialState() {
-        return {};
-    }
-}
-
-// ----------------------------------------------------------------------------
-
-// ReactComponent is a friend of Component therefore it is by definition allowed to read those non-public members.
-class ReactComponent extends React.Component {
-    constructor(wrappedComponent, wrappedComponentClass) {
-        this.__wrappedComponent = wrappedComponent;
-        this.__wrappedComponentClass = wrappedComponentClass;
-
-        this.state = wrappedComponentClass
-                ? {data: getInitialState(wrappedComponentClass)}
-                : null;
-
-        this.__view = wrappedComponentClass
-                ? new (wrappedComponent.getViewClass())()
-                : null;
-    }
-
-    render() {
-        const dispatch = (msg) => {
-            const
-               state = this.state.data,
-               ctrl = new (this.__wrappedComponent.getControllerClass())(state),
-               ctrlCalls = getControllerCallsFromMessage(msg, ctrl);
-
-            for (let ctrlCall of ctrlCalls) {
-            setTimeout(() => {
-               const
-                   methodName = ctrlCall.methodName,
-                   args = ctrlCall.args,
-                   nextState = ctrl[methodName].apply(ctrl, args);
-
-                if (!isValidComponentState(nextState)) {
-                    throw new createComponentError(this._wrappedComponent,
-                            `Component method '${ctrlMethodName}' returned invalid next state: ${nextState}`);
-                }
-
-                if (nextState !== state) {
-                    this.setState({data: nextState});
-                }
-
-                printStateTransitionDebugInfo(this.__wrappedComponent, state, nextState, msg);
-            }, 0);
+        ret = React.createClass({
+            render: function () {
+                return view(this.state.data, normalizeProps(this.props), this.context, sender(this));
+            },
+            getInitialState: function () {
+                return {data: initialState};
+            },
+            getDefaultProps: function() {
+                return defaultProps;
             }
-        }
+        });
 
-        return this.__view.render(this.state.data, this.props, dispatch);
-    }
 
-    componentWillMount() {console.debug(this.__wrappedComponent.componentWillMount)
-        return this.__wrappedComponent.componentWillMount();
-    }
-
-    componentWillReceiveProps(nextProps) {
-        return this.__wrappedComponent.componentWillReceiveProps(this.props, nextProps);
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.__wrappedComponent.shouldComponentUpdate(this.props, nextProps, this.state.data, nextState.data);
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-        return this.__wrappedComponent.componentWillUpdate(this.props, nextProps, this.state, nextState);
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        return this.__wrappedComponent.componentDidUpdate(this.props, prevProps, this.state, prevState);
-    }
-
-    componentWillUnmount() {
-        return this.__wrappedComponent.componentWillUnmount();
+        ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
+        return ret;
     }
 }
 
-function getInitialState(componentClass) {
+// ------------------------------------------------------------------
+
+function normalizeStateTransitions(stateTransitions) {
+    return stateTransitions; // TODO
+}
+
+function normalizeInitialState(initialState) {
+    return Immutable.Map(initialState);
+}
+
+function normalizeProps(props) {
     var ret;
 
-    if (!componentClass || typeof componentClass.getInitialState !== 'function') {
-        ret = Component.getInitialState();
+    if (!props) {
+        ret = Immutable.Map({});
+    } else if (ret instanceof Immutable.Map) {
+        ret = props;
     } else {
-        ret = componentClass.getInitialState();
-
-        if (!isValidComponentState(ret)) {
-            throw createClassError(componentClass,
-                        `Component class method 'getInitialState' returned invalid state: ${ret}`);
-        }
+        ret = Immutable.Map(props);
     }
 
     return ret;
 }
 
-function getTypeNameByComponent(anyComponent) {
-    var ret;
-
-    const component = anyComponent instanceof Component
-            ? anyComponent
-            : (anyComponent instanceof React.Component && anyComponent.__component instanceof Component
-                    ? component.__component
-                    : null);
-
-    if (!component || !component.constructor || typeof component.constructor.getTypeName !== 'function') {
-        ret = null;
-    } else {
-        const typeName = component.constructor.getTypeName(component);
-
-        if (!typeName || typeof typeName !== 'string' || typeName.length === 0 || typeName.trim() !== typeName) {
-            ret = null;
-        } else {
-            ret = typeName;
-        }
-    }
-
-    return ret;
-}
-
-function getTypeNameByComponentClass(anyComponentClass) {
-    var ret;
-
-    const
-        proto = typeof anyComponentClass === 'function' ? anyComponentClass.prototype : null,
-        componentClass = proto instanceof Component
-            ? anyComponentClass
-            : (proto instanceof React.Component && anyComponent.__component instanceof Component
-                    ? component.__component
-                    : null);
-}
-function createComponentError(component, errorText) {
-    const
-        typeName = getTypeNameByComponent(component),
-        msg = (typeName === null ? errorText : + `[Component of type ${typeName}] ${errorText}`);
-
-    return new TypeError(msg);
-}
-
-function createComponentClassError(componentClass, errorText) {
-    return new TypeError(errorText); // TODO - add component class information
-}
-
-function isValidComponentState(state) {
-    return !!state; // TODO
-}
-
-function isValidComponentProp(prop) {
-    return true; // TODO
-}
-
-function toJS(obj) {
-    var ret = (obj instanceof Immutable.Collection) ? obj.toJS() : obj;
-    return ret;
-}
-
-function getControllerCallsFromMessage(msg, controller) {
-    const ret = [];
-
-    if (msg instanceof Array) {
-        for (let m of msg) {
-            ret = ret.concat(getControllerCallsFromMessage(m, controller));
-        }
-    } else {
-        for (let prop in msg) {
-            if (msg.hasOwnProperty(prop)) {
-                let args = msg[prop];
-
-                if (!(args instanceof Array)) {
-                    args = [args];
-                }
-
-                ret.push({methodName: prop, args: args});
-            }
-        }
-    }
-
-    return ret;
-}
-
-function printStateTransitionDebugInfo(component, oldState, newState, msg) {
+function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {
     console.log("\n=== COMPONENT STATE TRANSITION =======================\n");
     console.log("--- component type ---------------------------------");
-    console.log(getTypeNameByComponent(component));
+    console.log(componentClass.getTypeName());
     console.log("--- old state --------------------------------------");
     console.log(oldState.toString());
     console.log("--- new state --------------------------------------");
-    console.log(toJS(newState === oldState ? '(no changes)' : newState.toString()));
-    console.log("--- message ----------------------------------------");
-    console.log(toJS(msg));
+    console.log((newState === oldState ? '(no changes)' : newState.toString()));
+    console.log("--- transition -------------------------------------");
+    console.log(transitionId);
+    console.log("--- arguments --------------------------------------");
+    console.log(args.toString());
     console.log("====================================================");
 }

@@ -12,11 +12,9 @@ class Controller {
         });
     }
 
-    handleMessage(message) {
-        return this.state;
-    }
 
-    publish(eventName, event) {
+
+    publish(msgName, event) {
         // Optionally to be overridden
     }
 }

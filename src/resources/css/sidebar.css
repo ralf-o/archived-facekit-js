@@ -1,0 +1,81 @@
+.w-sidebar {
+    background-color: rgb(232, 232, 232);
+    border-width: 0 1px 0 0;
+    border-style: solid;
+    border-color: rgb(212, 212, 212);
+    float: left;
+    height: 100%;
+    z-index: 0;
+}
+
+.w-sidebar > .w-tabbox {
+    position: relative;
+}
+
+.w-sidebar > .w-tabbox > ul {
+    position: relative;
+    background-color: rgb(232, 232, 232);
+    padding: 0;
+    border: 0;
+    transform: translate(-50%, -50%) rotate(-90deg) translate(-50%, 50%) scale(-1, 1);
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+
+.w-sidebar > .w-tabbox > ul * {
+    height: 24px;
+}
+
+.w-sidebar > .w-tabbox > ul * {
+    border-radius: 0;
+}
+
+.w-sidebar > .w-tabbox > ul a {
+    color: black;
+    transform: scale(-1, 1);
+    padding: 0 12px;
+    marginx: 0;
+}
+
+.w-sidebar > .w-tabbox > .w-tabbox-pages {
+    position: relative;
+    padding: 0;
+    top: -23px;
+    height: 100% !important;
+    background-color: green;
+    z-index: 1;
+    border-width: 0 0 0 23px;
+    border-color: rgb(232, 232, 232);
+    border-style: solid;
+}
+
+.w-sidebar > .w-tabbox > .w-tabbox-pages > .w-tabbox-page {
+    position: relative;
+    background-color: rgb(243, 243, 243);
+    padding: 10px;
+    height: 100% !important;
+    border-width: 0 0 0 1px;
+    border-style: solid;
+    border-color: rgb(212, 212, 212);
+    z-index: 300;
+}
+
+.w-sidebar > .w-tabbox li.active a {
+    border-width: 0 1px;
+    border-style: solid;
+    border-color: rgb(212, 212, 212);
+}
+
+.w-sidebar > .w-tabbox .active a,
+.w-sidebar > .w-tabbox .active a:hover {
+    background-color: rgb(243, 243, 243);
+}
+
+body {
+    height: 100%;
+}
+
+html {
+    height: 100%;
+}

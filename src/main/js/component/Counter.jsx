@@ -1,49 +1,36 @@
-class CounterController extends Controller {
-    construct(state = null) {
-        super(state);
-    }
+'use strict';
 
-    incrementCounter(n = 1) {console.log(999, this.state.toString())
-        let ret = this.state.update('counter', x => x + n);
+const counterStateTransitions = {
+    incrementCounter: (n = 1) => state => {
+        var ret = state.update('counter', c => c + n);
         return ret;
     }
-
-    static getDefaultState() {
-        return Immutable.Map({counter: 0})  ;
-    }
 }
 
-class CounterView extends View {
-   render(state, props, dispatch) {
-        return (
-            <div style={{padding: '50px'}}>
-                <button style={{margin: '0 80px'}} className="btn btn-warning" onClick={ () => alert("Juhuuuuuuuuuuuuu") }>Juhuuuu</button>
-                <div className="btn-group" role="group">
-                    <button className="btn btn-default" onClick={() => dispatch({incrementCounter: -10})}>- 10</button>
-                    <button className="btn btn-default" onClick={() => dispatch({incrementCounter: -1})}>- 1</button>
-                </div>
-                <span style={{padding: '0 10px'}}>{'Counter: ' + state.get('counter')}</span>
-                <div className="btn-group" role="group">
-                    <button className="btn btn-default" onClick={() => dispatch({incrementCounter: 1})}>+ 1</button>
-                    <button className="btn btn-default" onClick={() => dispatch({incrementCounter: 10})}>+ 10</button>
-                </div>
-            </div>
-        );
-   }
+const counterView = (state, props, ctx, send) => {
+    return (
+        <div style={{padding: '50px'}}>
+            <ButtonGroup>
+                <Button onClick={ () => send('incrementCounter', -10) } text="-10"/>
+                <Button onClick={ () => send('incrementCounter', -1) } text="-1"/>
+            </ButtonGroup>
+            <span style={{padding: '0 10px'}}>{props.get('text') + ': ' + state.get('counter')}</span>
+
+            <ButtonGroup>
+                <Button onClick={ () => send('incrementCounter', 1) } text="+ 1" />
+                <Button onClick={ () => send('incrementCounter', 10) } text="+ 10" />
+            </ButtonGroup>
+        </div>
+    );
 }
 
-class CounterFK extends Component {
-    constructor() {
-        super(CounterView, CounterController);
-    }
+var Counter = Component.createClass({
+        typeName: "facekit/Counter",
+        view: counterView,
+        stateTransitions: counterStateTransitions,
+        initialState: {counter: 0}
+    });
 
-    static getTypeName() {
-        return 'facekit/Counter';
-    }
+Counter = Component.toReact(Counter);
 
-    static getInitialState() {
-        return CounterController.getDefaultState();
-    }
-}
 
-Counter = Component.toReact(CounterFK);
