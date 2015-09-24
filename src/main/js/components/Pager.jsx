@@ -1,5 +1,7 @@
 'use strict';
 
+import Component from '../base/Component';
+
 const pagerView = (state, props, ctx, send) => {
     const
         metrics = PaginationHelper.calcPaginationMetrics(
@@ -77,10 +79,10 @@ const pagerDefaultProps = {
     showLastButton: true
 }
 
-var Pager = Component.createClass({
+const Pager = Component.createClass({
         typeName: 'facekit/Pager',
         view: pagerView,
         defaultProps: pagerDefaultProps
     });
 
-Pager = Component.toReact(Pager);
+export default Pager;

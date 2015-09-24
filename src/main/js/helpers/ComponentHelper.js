@@ -1,6 +1,6 @@
 'use static';
 
-class ComponentHelper {
+export default class ComponentHelper {
     static buildCssClass(...tokens) {
         let ret = '';
 
@@ -13,13 +13,13 @@ class ComponentHelper {
                 ret += token;
             } else if (token instanceof Array) {
                 for (let subtoken of token) {
-                    let subtoken = ComponentHelper.buildCssClass(token);
+                    let subCssClass = ComponentHelper.buildCssClass(subtoken);
 
                     if (ret.length > 0) {
                         ret += ' ';
                     }
 
-                    ret += subtoken;
+                    ret += subCssClass;
                 }
             }
         }

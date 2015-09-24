@@ -21,31 +21,21 @@
 <body>
 <div id="content"></div>
 
-<script type="text/jsx;harmony=true" src="../../src/main/js/base/Component.js"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/base/List.js"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/base/Map.js"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/component/Button.jsx"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/component/ButtonGroup.jsx"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/component/Pager.jsx"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/component/PaginationInfo.jsx"></script>
+<script src="../../../mojo-toolkit/dist/v0.1.0/mojo-0.1.0.js"></script>
 
-<script type="text/jsx;harmony=true" src="../../../../mojo-toolkit/dist/v0.1.0/mojo-0.1.0.js"></script>
-
-<script type="text/jsx;harmony=true" src="../../src/main/js/helper/ComponentHelper.js"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/helper/PaginationHelper.js"></script>
-<script type="text/jsx;harmony=true" src="../../src/main/js/helper/TableHelper.js"></script>
-
-<script type="text/jsx;harmony=true" src="../../src/main/js/component/Counter.jsx"></script>
+<script src="../../dist/v0.1.0/facekit-react-0.1.0.js"></script>
 
 <script type="text/jsx;harmony=true">
 
 var Strings = mojo.Strings,
-    Objects = mojo.Objects;
+    Objects = mojo.Objects,
+    Reader = mojo.Reader;
 
-var widget1 = <Counter text="Counter"/>,
-    widget2 = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
+var widget1 = <Button label="Juhu"/>;
+   // widget1 = <Counter text="Counter"/>;
+   // widget2 = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
 
-React.render(widget2, document.getElementById('content'));
+React.render(widget1, document.getElementById('content'));
 
 
 </script>

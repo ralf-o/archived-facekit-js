@@ -1,0 +1,413 @@
+
+
+
+eShop Concept: Addons
+=====================
+
+Bosch Rexroth AG / dmc digital media center GmbH
+
+v1.0, 2014-10-10
+
+
+
+.Abstract
+
+--
+
+The intention of this document is to give a brief intoruction
+
+to a new programming model available in the Bosch-Rexroth shop
+
+call "Addons".
+
+--
+
+
+
+.Document history
+
+[options="header,autowidth"]
+
+|====
+
+| Version | Date | Author | Changes/Remarks
+
+
+
+| 0.9
+
+| Ralf Obmann
+
+| 2012-10-10
+
+| Initial version
+
+
+
+| 1.0
+
+| Ralf Obmann
+
+| 2012-10-10
+
+| Updated all chapters
+
+
+
+|====
+
+
+
+== Implementation of the addon class
+
+
+
+Create an implementation of interface "IntershopAddon". +
+
+The easiest way to do so is to extend the abstract class "BrxAddon". +
+
+The addon instance is always domain-specific: If you have x different channels then you will have x different instances of the involved addon.
+
+
+
+NOTE: Just a test
+
+
+
+[source,java]
+
+----
+
+class GoToAddon extends BrxAddon {
+
+    public GoToAddon(Domain domain) {
+
+        super(domain);
+
+        // Obviously an addon is domain specific.
+
+        // ...
+
+    }
+
+
+
+    // ...
+
+}
+
+----
+
+
+
+== Configuration of the addon
+
+
+
+Register the addon to the "brx_init/share/system/config/cluster/global_config/addons.xml".
+
+   Then the addon will be instantiated automatically by the addon manager as soon as an addon funcationality
+
+   will be used.
+
+
+
+[source,xml]
+
+----
+
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+
+
+<config>
+
+  <configuration-default>
+
+    <addons>
+
+      <addonClasses>
+
+        <addonClass>com.boschrexroth.enfinity.brx_core.internal.addongoto.GoToAddon</addonClass>
+
+        <!-- ... maybe some other addons ... -->
+
+      </addonClasses>
+
+    </addons>
+
+  </configuration-default>
+
+</config>
+
+----
+
+
+
+  By using the following Java system property, it is possible to rebind the addons periodically and
+
+  re-instantiate the involved addon object instances. This is quite a good feature if you are working
+
+  with JRebel (http://www.jrebel.com) to decrease the necessity of appserver restarts.
+
+
+
+  # This will rebind the addons each 20 seconds
+
+  intershop.addons.rebindInterval=20
+
+
+
+
+
+== Event handling
+
+
+
+  To allow the addon to listen for certain events, use the @Consume anntation in your addon class:
+
+
+
+[source,java]
+
+....
+
+  @Consume(priority = 10)
+
+  public void handleSomeEvent(SomeEvent event) {
+
+      // ... event handling ...
+
+  }
+
+....
+
+
+
+  With the priority attribute you can define the order the consumers are invoked: Those consumers with
+
+  higher priority are earlier informed about a published event than those consumers with lower priority.
+
+  Valid values for "priority" range from -2,147,483,648 to +2,147,483,647 while 0 is the default value.
+
+
+
+
+
+=== Todo
+
+
+
+To send messages to the subscribed addons, use the following code:
+
+
+
+[source,properties]
+
+----
+
+AddonMgr addonMgr = NamingMgr.getManager(AddonMgr.class);
+
+AddonBus addonBus = addonMgr.getAddonBus(domain);
+
+addonBus.publish(new EventAfterSchedulesPreparationForView(...));
+
+----
+
+
+
+  To publish an qualified event use:
+
+  addonBus.publish("someQualifier", new SomeEvent(...));
+
+
+
+  Remark: The events will all be sent/consumed synchronously (without any additional threads - an uncatched exception interrupt the event publishing).
+
+
+
+=== Todo
+
+
+
+  The addons can also contribute (= produce) concrete implementations of interfaces that are then used for general business processes.
+
+   For example the OrderSplitMgrImpl ask the addons whether some addons may contribute order split strategies.
+
+
+
+   To register a certain addon method to produce instances of a certain type, use the @Produce in your addon class annotation:
+
+
+
+   @Produce(priority = 10)
+
+   public OrderSplitStrategy getGoToOrderSplitStrategy() {
+
+       // [...]
+
+       // return orderSplitStrategy;
+
+   }
+
+
+
+
+
+   To get the order split strategy with the highest priority use:
+
+
+
+   AddonMgr addonMgr = NamingMgr.getManager(AddonMgr.class);
+
+   AddonBus addonBus = addonMgr.getAddonBus(domain);
+
+   OrderSplitStrategy strategy = addonBus.getBean(OrderSplitStrategy.class);
+
+
+
+   To get all addon order split strategies use:
+
+
+
+   AddonMgr addonMgr = NamingMgr.getManager(AddonMgr.class);
+
+   AddonBus addonBus = addonMgr.getAddonBus(domain);
+
+   OrderSplitStrategy strategy = addonBus.getBeans(OrderSplitStrategy.class);
+
+
+
+   Again it's also possible to use qualifiers if desired:
+
+
+
+   OrderSplitStrategy strategy = addonBus.getBeans("someQualifier", SomeInterface.class);
+
+
+
+   If yes in the example it will use that order split strategy with the highest priority.
+
+
+
+
+
+== Templating
+
+
+
+   It's also possible for addons to register addon templates to be included in other templates whithout the need
+
+   that the master templates has to know anything about the addon template.
+
+
+
+   This is done by using the "isIncludeAddon" template, for example see template "CurrentReqBasketItem.isml":
+
+   <isIncludeAddons qualifier="additionalMaterialInfoInBasket">
+
+
+
+   If an addon wants to contribute some additional content for the master template it has to register providing
+
+   the qualifier that has been used by the "isIncludeAddon" tag, for example see "GoToAddon.java":
+
+
+
+    @Produce(qualifier = "additionalMaterialInfoInBasket")
+
+    public IntershopAddonTemplate getAdditionalMaterialInfoTemplate() {
+
+        // IntershopAddonTemplate template = [...]
+
+        return template;
+
+    }
+
+
+
+
+
+=== Todo
+
+    The best way to provide instances of the interface IntershopAddonTemplate is to extend the abstract class BrxAddonTemplate,
+
+   see "GoToTemplateForAdditionalMaterialInfoInBasket.class" for an example:
+
+
+
+   public class GoToTemplateForAdditionalMaterialInfoInBasket extends BrxAddonTemplate {
+
+     public GoToTemplateForAdditionalMaterialInfoInBasket(final Domain domain) {
+
+         // Obviously this class is domain dependent.
+
+         // [...]
+
+     }
+
+
+
+    @Override
+
+    public String getPath(PipelineDictionary viewModel) {
+
+        // Path to the addon ISML template
+
+        return "inc/goTo/GoToIconInBasket.isml";
+
+    }
+
+
+
+    @Override
+
+    public void doBeforeInclude(PipelineDictionary viewModel) {
+
+        // [...]
+
+        // If you like to add some additional values to the pipeline dictionary
+
+        // to be used in the addon template (so it is NOT necessary to handle that
+
+        // in the piplene => be aware, that pipelines do not know anything about
+
+        // registered addons.
+
+        viewModel.put("myKey", myObject);
+
+    }
+
+    @Override
+
+    public void doAfterInclude(final PipelineDictionary viewModel) {
+
+        // Clean up afterwards...
+
+        viewModel.remove("myKey");
+
+    }
+
+  }
+
+
+
+== Addon front-end helpers
+
+
+
+  Very often it is necessary for the addons to provide some addon specific helper object to the
+
+   addon templates (again, please be aware that the "normal" pipelines and templates do not know
+
+   anything about the registered addons).
+
+   For example, the GoTo addon provides a domain-specific facade (for the GoToManager) by class
+
+   "GoToFacade".
+
+
+
+
+
+   #Addon:GoToFacade:GoToPageUrl#

@@ -1,5 +1,9 @@
 'use strict';
 
+import Component from '../base/Component';
+import Button from '../components/Button';
+import ButtonGroup from '../components/Button';
+
 const counterStateTransitions = {
     incrementCounter: (n = 1) => state => {
         var ret = state.update('counter', c => c + n);
@@ -24,13 +28,11 @@ const counterView = (state, props, ctx, send) => {
     );
 }
 
-var Counter = Component.createClass({
+const Counter = Component.createClass({
         typeName: "facekit/Counter",
         view: counterView,
         stateTransitions: counterStateTransitions,
         initialState: {counter: 0}
     });
 
-Counter = Component.toReact(Counter);
-
-
+export default Counter;

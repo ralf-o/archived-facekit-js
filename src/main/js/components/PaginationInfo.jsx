@@ -1,6 +1,8 @@
 'use strict';
 
-class PaginationInfo extends React.Component {
+import Component from '../base/Component';
+
+export class PaginationInfo extends React.Component {
     componentDidMount() {
         jQuery(React.findDOMNode(this)).find('.fk-with-tooltip').tooltip({placement: 'auto', delay: 400});
     }

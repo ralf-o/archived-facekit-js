@@ -1,6 +1,10 @@
 'use strict';
 
-class Component {
+import DOMBuilder from './DOMBuilder';
+
+const {Objects, Reader} = mojo;
+
+export default class Component {
     static mount(component, target) {
         throw "TODO";
     }
@@ -38,91 +42,121 @@ class Component {
             throw new TypeError("[Component.createClass] Invalid 'initialState' provided int configuration object");
         }
 
-        const newClass = function () {};
+
+        const newClass = function () { this.__state === newClass.getInitialState() };
         newClass.prototype = Object.create(Component.prototype);
 
-        newClass.getTypeName = () => typeName;
-        newClass.getView = () => view;
-        newClass.getStateTransitions = () => normalizeStateTransitions(stateTransitions);
-        newClass.getInitialState = () => normalizeInitialState(initialState);
-        newClass.getDefaultProps = () => normalizeProps(defaultProps);
+        const messageHandler = (oldState, message) => {
+            const propNames = Object.getOwnPropertyNames(message);
 
-        return newClass;
-    }
+            if (propNames.length > 1) {
+                throw new TypeError('Event handler has sent illegal message');
+            } else if (propNames.length === 1) {
+                const
+                    stateTransitionName = propNames[0],
+                    stateTransition = stateTransitions[stateTransitionName];
 
-    static toReact(componentClass) {
-        if (!componentClass || !(componentClass.prototype instanceof Component)) {
-            throw new TypeError("[Component.toReact] First argument 'componentClass' is not really a component class");
+                if (typeof stateTransition !== 'function') {
+                    throw new TypeError(`Unknown state transition '${stateTransitionName}'`);
+                }
+
+                const
+                    args = message[stateTransitionName],
+                    argsArr = Array.isArray(args) ? args : [args],
+                    newState = Objects.transform(oldState, stateTransition(...argsArr));
+
+
+
+                printStateTransitionDebugInfo(newClass, oldState, newState, stateTransitionName, argsArr);
+            }
         }
 
-        var ret = null;
+        newClass.getTypeName = () => typeName;
 
-        const
-            typeName = componentClass.getTypeName(),
-            view = componentClass.getView(),
-            stateTransitions = componentClass.getStateTransitions(),
-            initialState = componentClass.getInitialState(),
-            defaultProps = componentClass.getDefaultProps().toJS(), // TODO!!!
-            sender = (reactComponent) => (transitionId, ...args) => {
-                const
-                    transition = stateTransitions[transitionId],
-                    oldState = reactComponent.state.data,
-                    newState = transition(...args)(reactComponent.state.data, reactComponent.context);
-                    printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args);
-                    reactComponent.setState({data: newState});
-                 return newState;
-            };
+        newClass.getView = () => domBuilder => (props, state, ctx) => {
+            const domBuilderProxy = new DOMBuilder({
+                createElement: (tag, attrs, children) => {
+                    const attrsProxy = {};
 
-        ret = React.createClass({
-            render: function () {
-                return view(this.state.data, normalizeProps(this.props), this.context, sender(this));
-            },
-            getInitialState: function () {
-                return {data: initialState};
-            },
-            getDefaultProps: function() {
-                return defaultProps;
+                    for (let propName of Object.getOwnPropertyNames(attrs)) {
+                        const value = attrs[propName];
+
+                        const newValue = (typeof value !== 'function' || !propName.startsWith('on'))
+                                ? value
+                                : (...args) => {messageHandler(state, (value(...args)))};
+
+                        attrsProxy[propName] = newValue;
+                    }
+
+                    return domBuilder.createElement(tag, attrsProxy, children);
+                }
+            });
+
+            return view(domBuilderProxy)(new Reader(props), state, ctx);
+        };
+
+        newClass.getStateTransitions = () => stateTransitions;
+        newClass.getInitialState = () => initialState || {};
+        newClass.getDefaultProps = () => defaultProps || {};
+
+        newClass.toReact = () => {
+            if (typeof newClass.__reactClass !== 'function') {
+                newClass.__reactClass = toReactComponentClass(newClass);
             }
-        });
 
+            return newClass.__reactClass;
+        }
 
-        ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
-        return ret;
+        return newClass;
     }
 }
 
 // ------------------------------------------------------------------
 
-function normalizeStateTransitions(stateTransitions) {
-    return stateTransitions; // TODO
-}
 
-function normalizeInitialState(initialState) {
-    return Immutable.Map(initialState);
-}
-
-function normalizeProps(props) {
-    var ret;
-
-    if (!props) {
-        ret = Immutable.Map({});
-    } else if (ret instanceof Immutable.Map) {
-        ret = props;
-    } else {
-        ret = Immutable.Map(props);
+function toReactComponentClass(componentClass) {
+    if (!componentClass || !(componentClass.prototype instanceof Component)) {
+        throw new TypeError("[Component.toReact] First argument 'componentClass' is not really a component class");
     }
 
+    var ret = null;
+
+    const
+        typeName = componentClass.getTypeName(),
+        view = componentClass.getView(),
+        stateTransitions = componentClass.getStateTransitions(),
+        initialState = componentClass.getInitialState(),
+        defaultProps = componentClass.getDefaultProps();
+
+    ret = React.createClass({
+        render: function () {
+            return view(DOMBuilder.REACT)(this.props, this.state.data, this.context);
+        },
+        getInitialState: function () {
+            return {data: initialState};
+        },
+        getDefaultProps: function() {
+            return defaultProps || {};
+        }
+    });
+
+    ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
     return ret;
 }
 
 function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {
+    const
+        oldStateString = oldState instanceof Reader ? 'Reader: ' + JSON.stringify(oldState.__data) : oldState.toString(),
+        newStateString = newState instanceof Reader ? 'Reader: ' + JSON.stringify(newState.__data) : newState.toString();
+
+
     console.log("\n=== COMPONENT STATE TRANSITION =======================\n");
     console.log("--- component type ---------------------------------");
     console.log(componentClass.getTypeName());
     console.log("--- old state --------------------------------------");
-    console.log(oldState.toString());
+    console.log(oldStateString);
     console.log("--- new state --------------------------------------");
-    console.log((newState === oldState ? '(no changes)' : newState.toString()));
+    console.log((newState === oldState ? '(no changes)' : newStateString));
     console.log("--- transition -------------------------------------");
     console.log(transitionId);
     console.log("--- arguments --------------------------------------");

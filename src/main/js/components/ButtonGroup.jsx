@@ -1,5 +1,6 @@
 'use strict';
 
+import Component from '../base/Component';
 
 const buttonGroupView = (state, props, ctx, send) => {
     const children = props.get('children'),
@@ -20,9 +21,9 @@ const buttonGroupView = (state, props, ctx, send) => {
     );
 };
 
-var ButtonGroup = Component.createClass({
+const ButtonGroup = Component.createClass({
         typeName: "facekit/ButtonGroup",
         view: buttonGroupView
     });
 
-ButtonGroup = Component.toReact(ButtonGroup);
+export default ButtonGroup;

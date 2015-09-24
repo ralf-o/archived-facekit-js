@@ -1,1 +1,9 @@
 /.idea
+/.codio
+/.settings
+/.grunt
+/node_modules
+/build/*
+/dist/*
+/nbproject
+/npm-debug.log

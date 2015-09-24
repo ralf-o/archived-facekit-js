@@ -1,6 +1,6 @@
 'use strict';
 
-class PaginationHelper {
+export default class PaginationHelper {
     static calcPaginationMetrics(pageIndex, pageSize, totalItemCount) {
         const ret = {};
 

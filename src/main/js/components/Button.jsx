@@ -1,6 +1,9 @@
 'use strict';
 
-const buttonView = (state, props, ctx, send) => {
+import Component from '../base/Component';
+import ComponentHelper from '../helpers/ComponentHelper';
+
+const buttonView = html => (state, props) => {
     const onClickProp = props.get('onClick'),
           onClickCallback = (typeof onClickProp === 'function' ? onClickProp: null),
           icon = props.get('icon'),
@@ -42,12 +45,11 @@ const buttonDefaultProps = {
     type: 'default'
 }
 
-var Button = Component.createClass({
+const Button = Component.createClass({
         typeName: "facekit/Button",
         view: buttonView,
-        defaultProps: buttonDefaultProps
+        defaultProps: buttonDefaultProps,
+        constructor: Button
     });
 
-Button = Component.toReact(Button);
-
-
+export default Button;
