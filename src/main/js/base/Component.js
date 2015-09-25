@@ -12,7 +12,7 @@ export default class Component {
     }
 
     static createFactory(config) {
-        return Component.__createClass(config).asFunction();
+        return Component.__createClass(config).asFactory();
     }
 
 
@@ -21,7 +21,7 @@ export default class Component {
             throw new TypeError("[Component.createClass] First argument 'config' must be an object");
         }
 
-        const {typeName, view, stateTransitions, initialState, defaultProps} = config;
+        const {typeName, view, stateTransitions, initialState, defaultProps, allowedChildrenTypes} = config;
 
         if (typeName === undefined || typeName === null) {
            throw new TypeError("[Component.createClass] No 'typeName' provided in configuration object");
@@ -47,6 +47,8 @@ export default class Component {
             throw new TypeError("[Component.createClass] Invalid 'stateTransition' provided in configuration object");
         } else if (initialState !== undefined && initialState !== null && typeof initialState !== 'object') {
             throw new TypeError("[Component.createClass] Invalid 'initialState' provided int configuration object");
+        } else if (allowedChildrenTypes !== undefined && !Array.isArray(allowedChildrenTypes)) {
+            throw new TypeError("[Component.createClass] Invalid value for 'allowedChildrenTypes'");
         }
 
 
@@ -83,16 +85,30 @@ export default class Component {
         newClass.getTypeName = () => typeName;
 
         newClass.getView = () => (domBuilder, ctrl) => (props, children, state, ctx) => {
-            return view(domBuilder, ctrl)(new Reader(props), children, state, ctx);
+            // TODO!!!
+            const childrenArr = true || !allowedChildrenTypes
+                ? children
+                : Seq.from(children)
+                    .filter(child => child !== undefined && child !== null && child !== false)
+                    .map(child => {console.log(child instanceof Component, child)
+                        if (allowedChildrenTypes.length === 0) {
+                            throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
+                        } else if (!(child instanceof Component) || child.getComponentClass !== 'function' || !allowedChildrenTypes.includes(child.getFactory())) {
+                            throw new TypeError(`Illegal child for component of type '${typeName}'`);
+                        }
+                    })
+                    .toArray();
+
+            return view(domBuilder, ctrl)(new Reader(props), childrenArr, state, ctx);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
 
-        newClass.asFunction = function () {
+        newClass.asFactory = function () {
              const ret = (attributes = {}, ...children) => new newClass(attributes, ...children);
-
+             ret.getFactory = () => ret;
              ret.toReact = () => newClass.toReact();
 
             return ret;
@@ -159,7 +175,7 @@ function toReactComponentClass(componentClass) {
     });
 
     ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
-    ret.asFunction = () => (attrs, ...children) => React.createElement(ret, attrs, ...children);
+    //ret.asFunction = () => (attrs, ...children) => React.createElement(ret, attrs, ...children);
     return ret;
 }
 

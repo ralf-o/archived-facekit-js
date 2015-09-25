@@ -30,7 +30,10 @@ const buttonView = (html, ctrl) => (props, children, state, ctx) => {
                 title: tooltip,
                 disabled: disabled,
                 onClick: onClickCallback
-             }, text
+             },
+             ...(iconPosition === 'left' || iconPosition === 'top'
+                    ? [iconElement, text]
+                    : [text, iconElement])
         )
     );
 }
@@ -40,7 +43,7 @@ const buttonDefaultProps = {
 }
 
 export default Component.createFactory({
-        typeName: "facekit/Button",
-        view: buttonView,
-        defaultProps: buttonDefaultProps
-    });
+    typeName: "facekit/Button",
+    view: buttonView,
+    defaultProps: buttonDefaultProps
+});

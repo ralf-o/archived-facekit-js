@@ -13,6 +13,14 @@ facekit.react.ButtonGroup = buttonGroup.toReact();
 import counter from '../main/js/components/counter';
 facekit.react.Counter = counter.toReact();
 
+import paginationInfo from '../main/js/components/paginationInfo';
+facekit.react.PaginationInfo = paginationInfo.toReact();
+
+import pager from '../main/js/components/pager';
+facekit.react.Pager = pager.toReact();
+
+
+
 /*
 import FKButton from '../../../build/src/main/js/components/Button';
 export const Button = FKButton.toReact();
