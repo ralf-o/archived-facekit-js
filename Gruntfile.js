@@ -13,14 +13,27 @@ module.exports = function (grunt) {
                 moduleIds: false,
                 sourceMaps: true
             },
-            dist: {
+            dist:  {
                 files: [{
                     expand: true,
-                    cwd: 'src',
+                    cwd: 'src/',
                     src: ['**/*.js*'],
                     dest: 'build/src',
                     ext: '.js'
                 }]
+            }
+        },
+        esdoc : {
+            dist : {
+                options: {
+                    source: 'src/main/js',
+                    destination: 'dist/v<%= pkg.version %>/docs/api',
+                    undocumentIdentifier: false,
+                    unexportIdentifier: true,
+                    includeSource: false,
+                    //autoPrivate: false,
+                    title: 'Facekit for JavaScript'
+                }
             }
         },
         browserify: {
@@ -81,11 +94,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-asciidoctor');
+    //grunt.loadNpmTasks('grunt-asciidoctor');
+    grunt.loadNpmTasks('grunt-esdoc');
 
     grunt.registerTask('compile', ['babel']);
     grunt.registerTask('test', ['babel', 'mochaTest']);
-    grunt.registerTask('doc', ['babel', 'asciidoctor']);
-    grunt.registerTask('dist', ['clean', 'babel', 'asciidoctor', 'browserify', /* 'uglify', 'compress'*/]);
+    grunt.registerTask('dist', ['clean', 'babel', 'esdoc', 'browserify',  /* 'uglify', 'compress'*/]);
     grunt.registerTask('default', ['dist']);
 };

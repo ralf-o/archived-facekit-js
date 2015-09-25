@@ -1,7 +1,7 @@
 'use strict';
 
 import Component from '../base/Component';
-import button from './button'
+import Button from './Button'
 
 const buttonGroupView = (html, ctrl) => (props, children, state, ctx) => {
     const hasChildren = children instanceof Array && children.length > 0;
@@ -13,8 +13,17 @@ console.log(children, hasChildren)
     );
 };
 
-export default Component.createFactory({
-        typeName: "facekit/ButtonGroup",
-        view: buttonGroupView,
-        allowedChildrenTypes: [button]
-    });
+export default Component.createClass({
+    typeName: "facekit/ButtonGroup",
+    view: buttonGroupView,
+    allowedChildrenTypes: [Button]
+});
+
+/**
+ *
+ *
+ */
+// This is just a fake class definition for ESDoc.
+class ButtonGroup  {
+}
+

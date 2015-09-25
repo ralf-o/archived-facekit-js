@@ -4,20 +4,20 @@
 window.facekit = window.facekit || {};
 facekit.react = {};
 
-import button from '../main/js/components/button';
-facekit.react.Button = button.toReact();
+import FkButton from '../main/js/components/Button';
+facekit.react.Button = FkButton.toReact();
 
-import buttonGroup from '../main/js/components/buttonGroup';
-facekit.react.ButtonGroup = buttonGroup.toReact();
+import FkButtonGroup from '../main/js/components/ButtonGroup';
+facekit.react.ButtonGroup = FkButtonGroup.toReact();
 
-import counter from '../main/js/components/counter';
-facekit.react.Counter = counter.toReact();
+import FkCounter from '../main/js/components/Counter';
+facekit.react.Counter = FkCounter.toReact();
 
-import paginationInfo from '../main/js/components/paginationInfo';
-facekit.react.PaginationInfo = paginationInfo.toReact();
+import FkPaginationInfo from '../main/js/components/PaginationInfo';
+facekit.react.PaginationInfo = FkPaginationInfo.toReact();
 
-import pager from '../main/js/components/pager';
-facekit.react.Pager = pager.toReact();
+import FkPager from '../main/js/components/Pager';
+facekit.react.Pager = FkPager.toReact();
 
 
 

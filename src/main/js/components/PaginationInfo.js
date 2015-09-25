@@ -10,11 +10,10 @@ const view = (html, ctrl) => (props, children, state, ctx) => {
             props.get('totalItemCount'));
 
     return (
-        <div className="fk-pagination-info">
-            {props.get('type') !== 'infoAboutItems'
+        html.div({className: 'fk-pagination-info'},
+            props.get('type') !== 'infoAboutItems'
                    ? getPageInfo(metrics)
-                   : getItemsInfo(metrics)}
-        </div>
+                   : getItemsInfo(metrics))
     );
 };
 
@@ -48,8 +47,16 @@ const propTypes = {
     totalItemCount: React.PropTypes.number
 };
 
-export default Component.createFactory({
+export default Component.createClass({
     typeName: 'facekit/PaginationInfo',
     view: view,
     defaultProps: defaultProps
 });
+
+/**
+ *
+ *
+ */
+// This is just a fake class definition for ESDoc.
+class PaginationInfo      {
+}

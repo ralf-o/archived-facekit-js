@@ -2,9 +2,9 @@
 
 import Component from '../base/Component';
 import PaginationHelper from '../helpers/PaginationHelper';
-import buttonGroup from './buttonGroup';
-import button from './button';
-import paginationInfo from './paginationInfo';
+import ButtonGroup from './ButtonGroup';
+import Button from './Button';
+import PaginationInfo from './PaginationInfo';
 
 const pagerView = (html, ctrl) => (props, children, state, ctx) => {
     const
@@ -24,15 +24,15 @@ const pagerView = (html, ctrl) => (props, children, state, ctx) => {
     return (
         html.div(
             {className: 'fk-pager'},
-            buttonGroup({},
-                showFirstButton && button({
+            ButtonGroup({},
+                showFirstButton && Button({
                     text: (showButtonTexts ? 'First' : ''),
                     icon: 'fa-angle-double-left',
                     className: 'fk-pager-button-first',
                     tooltip: (showButtonTexts ? '' : 'First'),
                     disabled: disabled || metrics.isFirstPage
                 }),
-                showPreviousButton && button({
+                showPreviousButton && Button({
                     text: (showButtonTexts ? 'Previous' : ''),
                     icon: 'fa-angle-left',
                     className: 'fk-pager-button-previous',
@@ -40,22 +40,22 @@ const pagerView = (html, ctrl) => (props, children, state, ctx) => {
                     disabled: disabled || metrics.isFirstPage
                 })),
              (type !== 'randomAccess'
-                            ? paginationInfo(
+                            ? PaginationInfo(
                                 {pageIndex: metrics.pageIndex,
                                  pageSize: metrics.pageSize,
                                  totalItemCount: metrics.totalItemCount})
                             : 'xxx')
                             ,
 
-            buttonGroup({},
-                showNextButton && button({
+            ButtonGroup({},
+                showNextButton && Button({
                     text: (showButtonTexts ? 'Next' : ''),
                     icon: 'fa-angle-right',
                     className: 'fk-pager-button-next',
                     tooltip: (showButtonTexts ? '' : 'Next'),
                     disabled: disabled || metrics.isLastPage
                 }),
-                showLastButton && button({
+                showLastButton && Button({
                     text: (showButtonTexts ? 'Last' : ''),
                     icon: 'fa-angle-double-right',
                     className: 'fk-pager-button-last',
@@ -73,8 +73,16 @@ const pagerDefaultProps = {
     showLastButton: true
 }
 
-export default Component.createFactory({
+export default Component.createClass({
     typeName: 'facekit/Pager',
     view: pagerView,
     defaultProps: pagerDefaultProps
 });
+
+/**
+ *
+ *
+ */
+// This is just a fake class definition for ESDoc.
+class Pager  {
+}

@@ -5,6 +5,10 @@ import Component from './Component';
 const Seq = mojo.Seq;
 
 export default class DOMBuilder {
+    /**
+     * @param {object} config
+     *   The configuration of the DOMBuilder
+     */
     constructor(config) {
         this.__createElement = config.createElement;
     }

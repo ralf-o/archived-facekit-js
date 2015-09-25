@@ -42,8 +42,20 @@ const buttonDefaultProps = {
     type: 'default'
 }
 
-export default Component.createFactory({
+
+export default Component.createClass({
     typeName: "facekit/Button",
     view: buttonView,
     defaultProps: buttonDefaultProps
 });
+
+
+/**
+ *
+ *
+ */
+// This is just a fake class definition for ESDoc.
+class Button  {
+}
+
+
