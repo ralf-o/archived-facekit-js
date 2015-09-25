@@ -2,13 +2,12 @@
 
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
+import button from './button';
+import buttonGroup from './buttonGroup'
 
-const
-    {Reader} = mojo;
+const {Reader} = mojo;
 
 const counterView = (html, ctrl) => (props, children, state, ctx) => {
-    const {button, buttonGroup} = facekit;
-
     return (
         html.div(
             {},
@@ -28,7 +27,7 @@ const counterView = (html, ctrl) => (props, children, state, ctx) => {
     );
 }
 
-const Counter = Component.createClass({
+export default Component.createFactory({
     typeName: "facekit/Button",
     view: counterView,
     initialState: new Reader({counter: 0}),
@@ -37,4 +36,3 @@ const Counter = Component.createClass({
     }
 });
 
-export default Counter;

@@ -4,12 +4,19 @@ import DOMBuilder from './DOMBuilder';
 
 const {Objects, Seq, Reader} = mojo;
 
+Array.from = (items) => Seq.from(items).toArray(); // TODO - get rid of this
+
 export default class Component {
     static mount(component, target) {
         throw "TODO";
     }
 
-    static createClass(config) {
+    static createFactory(config) {
+        return Component.__createClass(config).asFunction();
+    }
+
+
+    static __createClass(config) {
         if (config === null || typeof config !== 'object') {
             throw new TypeError("[Component.createClass] First argument 'config' must be an object");
         }
@@ -43,8 +50,10 @@ export default class Component {
         }
 
 
-        const newClass = function () {};
+        const newClass = function (attributes = {}, ...children) {this.constructor = newClass; this.__attributes = attributes; this.__children = children; };
         newClass.prototype = Object.create(Component.prototype);
+        newClass.prototype.getAttributes = function() {return this.__attributes};
+        newClass.prototype.getChildren = function() {return this.__children};
 
         const messageHandler = (stateSetter, oldState, message) => {
             const propNames = Object.getOwnPropertyNames(message);
@@ -80,6 +89,14 @@ export default class Component {
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
+
+        newClass.asFunction = function () {
+             const ret = (attributes = {}, ...children) => new newClass(attributes, ...children);
+
+             ret.toReact = () => newClass.toReact();
+
+            return ret;
+        }
 
         newClass.toReact = () => {
             if (typeof newClass.__reactClass !== 'function') {
@@ -118,7 +135,6 @@ function toReactComponentClass(componentClass) {
             if (stateTransitions) {
                 for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
                     const transition = stateTransitions[transitionName];
-
 
                     ctrl[transitionName] = (...args) => {
                         const

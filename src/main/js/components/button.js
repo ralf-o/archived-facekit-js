@@ -39,11 +39,8 @@ const buttonDefaultProps = {
     type: 'default'
 }
 
-const Button = Component.createClass({
+export default Component.createFactory({
         typeName: "facekit/Button",
         view: buttonView,
-        defaultProps: buttonDefaultProps,
-        constructor: Button
+        defaultProps: buttonDefaultProps
     });
-
-export default Button;

@@ -31,10 +31,10 @@ var Strings = mojo.Strings,
     Objects = mojo.Objects,
     Reader = mojo.Reader;
 
-const {Button, ButtonGroup, Counter} = facekit;
+const {Button, ButtonGroup, Counter} = facekit.react;
 
 //const widget = <Button text="Juhu"/>;
-//const widget = <ButtonGroup><Button text="Button-1"/><Button text="Button-2"/></ButtonGroup>;
+//const widget = <ButtonGroup><Button onClick={() => {alert('juhu')}} text="Button-1"/><Button text="Button-2"/></ButtonGroup>;
 const widget = <Counter label="Counter"/>;
    // widget = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
 

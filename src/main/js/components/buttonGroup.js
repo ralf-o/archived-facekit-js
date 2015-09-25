@@ -1,6 +1,7 @@
 'use strict';
 
 import Component from '../base/Component';
+import {Button} from './button'
 
 const buttonGroupView = (html, ctrl) => (props, children, state, ctx) => {
     const hasChildren = children instanceof Array && children.length > 0;
@@ -20,9 +21,7 @@ const buttonGroupView = (html, ctrl) => (props, children, state, ctx) => {
     );
 };
 
-const ButtonGroup = Component.createClass({
+export default Component.createFactory({
         typeName: "facekit/ButtonGroup",
         view: buttonGroupView
     });
-
-export default ButtonGroup;

@@ -1,20 +1,17 @@
 'use strict';
 
 
-window.facekit = {};
-facekit = {};
+window.facekit = window.facekit || {};
+facekit.react = {};
 
-import FKButton from '../main/js/components/Button';
-facekit.Button = FKButton.toReact();
-facekit.button = facekit.Button.asFunction();
-console.log(facekit.button)
-import FKButtonGroup from '../main/js/components/ButtonGroup';
-facekit.ButtonGroup = FKButtonGroup.toReact();
-facekit.buttonGroup = facekit.ButtonGroup.asFunction();
+import button from '../main/js/components/button';
+facekit.react.Button = button.toReact();
 
-import FKCounter from '../main/js/components/Counter';
-facekit.Counter = FKCounter.toReact();
-facekit.counter = facekit.Counter.asFunction();
+import buttonGroup from '../main/js/components/buttonGroup';
+facekit.react.ButtonGroup = buttonGroup.toReact();
+
+import counter from '../main/js/components/counter';
+facekit.react.Counter = counter.toReact();
 
 /*
 import FKButton from '../../../build/src/main/js/components/Button';

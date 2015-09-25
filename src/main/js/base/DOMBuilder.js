@@ -1,5 +1,9 @@
 'use strict';
 
+import Component from './Component';
+
+const Seq = mojo.Seq;
+
 export default class DOMBuilder {
     constructor(config) {
         this.__createElement = config.createElement;
@@ -26,13 +30,27 @@ export default class DOMBuilder {
             }
         }
 */
-        return this.__createElement(tag, attributes, children);
+
+        return this.__createElement(tag, attributes, ...children);
     }
+}
+
+function toReact(elem) {
+    var ret;
+
+    if (elem instanceof Component) {
+        const children = Seq.from(elem.getChildren()).map(toReact).toArray();
+        ret = React.createElement(elem.constructor.toReact(), elem.getAttributes(), ...children);
+    } else {
+        ret = elem;
+    }
+    return ret;
 }
 
 DOMBuilder.REACT = new DOMBuilder({
     createElement(tag, attrs, ...children) {
-        return React.createElement(tag, attrs, ...children);
+        const mappedChildren = Seq.from(children).map(toReact).toArray();
+        return React.createElement(tag, attrs, ...mappedChildren);
     }
 });
 
