@@ -2,9 +2,9 @@
 
 import Component from '../base/Component';
 
-const buttonGroupView = html => (props, children, state, ctx) => {
+const buttonGroupView = (html, ctrl) => (props, children, state, ctx) => {
     const hasChildren = children instanceof Array && children.length > 0;
-console.log(typeof children, Array.isArray(children), children instanceof mojo.Seq, children)
+
 /*
     if (hasChildren) {
         for (let child of children) {

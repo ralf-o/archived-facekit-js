@@ -43,7 +43,7 @@ export default class Component {
         }
 
 
-        const newClass = function () { console.log('xxxxxxxxxx') };
+        const newClass = function () {};
         newClass.prototype = Object.create(Component.prototype);
 
         const messageHandler = (stateSetter, oldState, message) => {
@@ -73,26 +73,8 @@ export default class Component {
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = (cfg) => domBuilder => (props, children, state, ctx) => {
-            const domBuilderProxy = new DOMBuilder({
-                createElement: (tag, attrs, children) => {
-                    const attrsProxy = {};
-
-                    for (let propName of Object.getOwnPropertyNames(attrs)) {
-                        const value = attrs[propName];
-
-                        const newValue = (typeof value !== 'function' || !propName.startsWith('on'))
-                                ? value
-                                : (...args) => {messageHandler(cfg.setState, state, (value(...args)))};
-
-                        attrsProxy[propName] = newValue;
-                    }
-
-                    return domBuilder.createElement(tag, attrsProxy, children);
-                }
-            });
-
-            return view(domBuilderProxy)(new Reader(props), children, state, ctx);
+        newClass.getView = () => (domBuilder, ctrl) => (props, children, state, ctx) => {
+            return view(domBuilder, ctrl)(new Reader(props), children, state, ctx);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
@@ -129,8 +111,28 @@ function toReactComponentClass(componentClass) {
 
     ret = React.createClass({
         render: function () {
-        const view = componentClass.getView({setState: state => this.setState({data: state})});
-                    return view(DOMBuilder.REACT)(this.props, this.props.children, this.state.data, this.context);
+            const view = componentClass.getView();
+
+            const ctrl = {};
+
+            if (stateTransitions) {
+                for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
+                    const transition = stateTransitions[transitionName];
+
+
+                    ctrl[transitionName] = (...args) => {
+                        const
+                            oldState = this.state.data,
+                            newState = Objects.transform(oldState, transition(...args));
+
+                        printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
+
+                        this.setState({data: newState});
+                    }
+                }
+            }
+
+            return view(DOMBuilder.REACT, ctrl)(this.props, this.props.children, this.state.data, this.context);
         },
         getInitialState: function () {
             return {data: initialState};

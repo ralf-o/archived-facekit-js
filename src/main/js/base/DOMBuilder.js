@@ -20,7 +20,7 @@ export default class DOMBuilder {
 
                 if (type === 'function') {
                     throw new TypeError("TODO"); //TODO
-                } else if (arg !== '') {console.log(arg)
+                } else if (arg !== '') {
                     children.push(arg);
                 }
             }

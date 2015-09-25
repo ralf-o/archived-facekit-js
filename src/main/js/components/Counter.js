@@ -6,7 +6,7 @@ import ComponentHelper from '../helpers/ComponentHelper';
 const
     {Reader} = mojo;
 
-const counterView = html => (props, children, state, ctx) => {
+const counterView = (html, ctrl) => (props, children, state, ctx) => {
     const {button, buttonGroup} = facekit;
 
     return (
@@ -14,8 +14,8 @@ const counterView = html => (props, children, state, ctx) => {
             {},
             buttonGroup(
                 {},
-                button({onClick: _ => ({incrementCounter: -10}), text: '-10'}),
-                button({onClick: _ => ({incrementCounter: -1}), text: '-1'})),
+                button({onClick: _ => ctrl.incrementCounter(-10), text: '-10'}),
+                button({onClick: _ => ctrl.incrementCounter(-1), text: '-1'})),
 
             html.span(
                 {style: {padding: '0 10px'}},
@@ -23,8 +23,8 @@ const counterView = html => (props, children, state, ctx) => {
 
             buttonGroup(
                 {},
-                button({onClick: _ => ({incrementCounter: 1}), text: '+1'}),
-                button({onClick: _ => ({incrementCounter: 10}), text: '+10'})))
+                button({onClick: _ => ctrl.incrementCounter(1), text: '+1'}),
+                button({onClick: _ => ctrl.incrementCounter(10), text: '+10'})))
     );
 }
 
