@@ -2,7 +2,7 @@
 
 import DOMBuilder from './DOMBuilder';
 
-const {Objects, Reader} = mojo;
+const {Objects, Seq, Reader} = mojo;
 
 export default class Component {
     static mount(component, target) {
@@ -43,10 +43,10 @@ export default class Component {
         }
 
 
-        const newClass = function () { this.__state === newClass.getInitialState() };
+        const newClass = function () { console.log('xxxxxxxxxx') };
         newClass.prototype = Object.create(Component.prototype);
 
-        const messageHandler = (oldState, message) => {
+        const messageHandler = (stateSetter, oldState, message) => {
             const propNames = Object.getOwnPropertyNames(message);
 
             if (propNames.length > 1) {
@@ -66,14 +66,14 @@ export default class Component {
                     newState = Objects.transform(oldState, stateTransition(...argsArr));
 
 
-
+                stateSetter(newState);
                 printStateTransitionDebugInfo(newClass, oldState, newState, stateTransitionName, argsArr);
             }
         }
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = () => domBuilder => (props, state, ctx) => {
+        newClass.getView = (cfg) => domBuilder => (props, children, state, ctx) => {
             const domBuilderProxy = new DOMBuilder({
                 createElement: (tag, attrs, children) => {
                     const attrsProxy = {};
@@ -83,7 +83,7 @@ export default class Component {
 
                         const newValue = (typeof value !== 'function' || !propName.startsWith('on'))
                                 ? value
-                                : (...args) => {messageHandler(state, (value(...args)))};
+                                : (...args) => {messageHandler(cfg.setState, state, (value(...args)))};
 
                         attrsProxy[propName] = newValue;
                     }
@@ -92,7 +92,7 @@ export default class Component {
                 }
             });
 
-            return view(domBuilderProxy)(new Reader(props), state, ctx);
+            return view(domBuilderProxy)(new Reader(props), children, state, ctx);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
@@ -123,14 +123,14 @@ function toReactComponentClass(componentClass) {
 
     const
         typeName = componentClass.getTypeName(),
-        view = componentClass.getView(),
         stateTransitions = componentClass.getStateTransitions(),
         initialState = componentClass.getInitialState(),
         defaultProps = componentClass.getDefaultProps();
 
     ret = React.createClass({
         render: function () {
-            return view(DOMBuilder.REACT)(this.props, this.state.data, this.context);
+        const view = componentClass.getView({setState: state => this.setState({data: state})});
+                    return view(DOMBuilder.REACT)(this.props, this.props.children, this.state.data, this.context);
         },
         getInitialState: function () {
             return {data: initialState};
@@ -141,6 +141,7 @@ function toReactComponentClass(componentClass) {
     });
 
     ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
+    ret.asFunction = () => (attrs, ...children) => React.createElement(ret, attrs, ...children);
     return ret;
 }
 

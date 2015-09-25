@@ -2,10 +2,10 @@
 
 import Component from '../base/Component';
 
-const buttonGroupView = (state, props, ctx, send) => {
-    const children = props.get('children'),
-          hasChildren = children instanceof Array && children.length > 0;
-
+const buttonGroupView = html => (props, children, state, ctx) => {
+    const hasChildren = children instanceof Array && children.length > 0;
+console.log(typeof children, Array.isArray(children), children instanceof mojo.Seq, children)
+/*
     if (hasChildren) {
         for (let child of children) {
             if (child !== null && child !== undefined && child !== false && child.type !== Button) {
@@ -13,11 +13,10 @@ const buttonGroupView = (state, props, ctx, send) => {
             }
         }
     }
-
+*/
     return (
-        <div className={'w-button-group ' + (hasChildren ? 'btn-group' : '')} role="group">
-            {children}
-        </div>
+        html.div(
+            {className: 'w-button-group ' + (hasChildren ? 'btn-group' : ''), role: 'group'}, ...children)
     );
 };
 

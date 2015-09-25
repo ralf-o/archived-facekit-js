@@ -3,35 +3,47 @@
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
-const {Reader} = mojo;
+const buttonView = html => (props, children, state, ctx) => {
+    const onClickProp = props.get('onClick'),
+          onClickCallback = (typeof onClickProp === 'function' ? onClickProp: null),
+          icon = props.get('icon'),
+          iconPosition = props.get('iconPosition'),
+          iconElement = ComponentHelper.createIconElement(icon, 'w-icon w-' + iconPosition),
+          type = props.get('type'),
+          text = props.get('text'),
+          tooltip = props.get('tooltip'), // TODO
+          disabled = !!props.get('disabled'),
+          menu = null, // TODO
+          isDropDown = false,
+          isSplitButton = false,
+          className = ComponentHelper.buildCssClass(
+                'btn w-button btn-' + type,
+                props.get('className'),
+                (text === null ? null : 'w-has-text'),
+                (iconElement === null ? null : 'w-has-icon'),
+                (!menu ? null : 'dropdown-toggle'));
 
-const buttonView = html => (props, state, ctx) => {
     return (
-        html.span(
-            {className: 'counter'},
-            html.span(
-                {className: 'button-group'},
-                html.button({onClick: _ => ({incrementCounter: -10})}, '-10'),
-                html.button({onClick: _ => ({incrementCounter: -1})}, '-1')),
-
-            html.span(
-                {style: {padding: '0 10px'}},
-                props.get('label') + ': ' + state.get('counter')),
-
-            html.span(
-                {className: 'button-group'},
-                html.button({onClick: _ => ({incrementCounter: 1})}, '+1'),
-                html.button({onClick: _ => ({incrementCounter: 10})}, '+10')))
+        html.a(
+            {
+                className: className,
+                title: tooltip,
+                disabled: disabled,
+                onClick: onClickCallback
+             }, text
+        )
     );
 }
 
+const buttonDefaultProps = {
+    type: 'default'
+}
+
 const Button = Component.createClass({
-    typeName: "facekit/Button",
-    view: buttonView,
-    initialState: new Reader({counter: 0}),
-    stateTransitions: {
-        incrementCounter: n => ({counter: {$update: c => c + n}})
-    }
-});
+        typeName: "facekit/Button",
+        view: buttonView,
+        defaultProps: buttonDefaultProps,
+        constructor: Button
+    });
 
 export default Button;

@@ -31,11 +31,14 @@ var Strings = mojo.Strings,
     Objects = mojo.Objects,
     Reader = mojo.Reader;
 
-var widget1 = <Button label="Juhu"/>;
-   // widget1 = <Counter text="Counter"/>;
-   // widget2 = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
+const {Button, ButtonGroup, Counter} = facekit;
 
-React.render(widget1, document.getElementById('content'));
+//const widget = <Button text="Juhu"/>;
+//const widget = <ButtonGroup><Button text="Button-1"/><Button text="Button-2"/></ButtonGroup>;
+const widget = <Counter label="Counter"/>;
+   // widget = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
+
+React.render(widget, document.getElementById('content'));
 
 
 </script>
