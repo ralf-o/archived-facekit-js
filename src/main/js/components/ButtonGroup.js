@@ -3,10 +3,9 @@
 import Component from '../base/Component';
 import Button from './Button'
 
-const buttonGroupView = (html, ctrl, ctx) => (props, children) => {
+const buttonGroupView = html => (props, children) => {
     const hasChildren = children instanceof Array && children.length > 0;
 
-console.log(children, hasChildren)
     return (
         html.div(
             {className: 'w-button-group ' + (hasChildren ? 'btn-group' : ''), role: 'group'}, ...children)

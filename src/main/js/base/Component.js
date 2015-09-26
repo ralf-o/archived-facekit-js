@@ -60,6 +60,7 @@ export default class Component {
             ret.constructor = newClass;
             ret.__attributes = attributes;
             ret.__children = children;
+
             return ret;
         };
 
@@ -94,13 +95,13 @@ export default class Component {
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = () => (domBuilder, ctrl, ctx) => (props, children) => {
-            // TODO!!!
-            const childrenArr = true || !allowedChildrenTypes
+        newClass.getView = () => (domBuilder, state, ctx) => (props, children) => {
+            // TODO!!!!
+            const allowedChildren = true || !allowedChildrenTypes
                 ? children
                 : Seq.from(children)
                     .filter(child => child !== undefined && child !== null && child !== false)
-                    .map(child => {console.log(child instanceof Component, child)
+                    .map(child => {
                         if (allowedChildrenTypes.length === 0) {
                             throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
                         } else if (!(child instanceof Component) || child.getComponentClass !== 'function' || !allowedChildrenTypes.includes(child.getFactory())) {
@@ -109,7 +110,7 @@ export default class Component {
                     })
                     .toArray();
 
-            return view(domBuilder, ctrl, ctx)(new Reader(props), childrenArr);
+            return view(domBuilder, state, ctx)(new Reader(props), allowedChildren);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
@@ -130,13 +131,56 @@ export default class Component {
 
 // ------------------------------------------------------------------
 
+class ReactComponent extends React.Component {
+    constructor() {
+        super();
+        this.state = {};
+    }
+
+    render() {
+        const
+            componentClass = this.__originalComponentClass,
+            stateTransitions = componentClass.getStateTransitions(),
+            view = componentClass.getView();
+            
+        const state = {};
+
+        if (stateTransitions) {
+            for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
+                const transition = stateTransitions[transitionName];
+
+                state[transitionName] = (...args) => {
+                    const
+                        oldState = this.state.data,
+                        newState = Objects.transform(oldState, transition(...args));
+
+                    printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
+
+                    this.setState({data: newState});
+                }
+            }
+        }
+
+       // TODO !!!!
+        state.get = key => {
+            const state = this.state.data;
+
+            return (state instanceof Reader
+                        || typeof Immutable === ' object' && Immutable && state instanceof Immutable.Collection)
+
+                   ? state.get(key)
+                   : state[key];
+        }
+
+        return view(DOMBuilder.REACT, state)(this.props, this.props.children);
+    }
+}
+
 
 function toReactComponentClass(componentClass) {
     if (!componentClass || !(componentClass.prototype instanceof Component)) {
         throw new TypeError("[Component.toReact] First argument 'componentClass' is not really a component class");
     }
-
-    var ret = null;
 
     const
         typeName = componentClass.getTypeName(),
@@ -144,58 +188,23 @@ function toReactComponentClass(componentClass) {
         initialState = componentClass.getInitialState(),
         defaultProps = componentClass.getDefaultProps();
 
-    ret = React.createClass({
-        render: function () {
-            const view = componentClass.getView();
+    const ret = function(...args) {
+        ReactComponent.call(this, ...args);
+        this.state = {data: this.__originalComponentClass.getInitialState()};
+    }
 
-            const ctrl = {};
-
-            if (stateTransitions) {
-                for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
-                    const transition = stateTransitions[transitionName];
-
-                    ctrl[transitionName] = (...args) => {
-                        const
-                            oldState = this.state.data,
-                            newState = Objects.transform(oldState, transition(...args));
-
-                        printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
-
-                        this.setState({data: newState});
-                    }
-                }
-            }
-
-            // TODO !!!!
-            ctrl.get = key => {
-                const data = this.state.data;
-
-                return (data instanceof Reader
-                            || typeof Immutable === ' object' && Immutable && data instanceof Immutable.Collection)
-
-                       ? data.get(key)
-                       : data[key];
-            }
-
-            return view(DOMBuilder.REACT, ctrl)(this.props, this.props.children, this.state.data, this.context);
-        },
-        getInitialState: function () {
-            return {data: initialState};
-        },
-        getDefaultProps: function() {
-            return defaultProps || {};
-        }
-    });
-
+    ret.prototype = new ReactComponent();
+    ret.defaultProps = componentClass.getDefaultProps();
+    ret.prototype.__originalComponentClass = componentClass;
+    ret.__originalComponentClass = componentClass;
     ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
-    //ret.asFunction = () => (attrs, ...children) => React.createElement(ret, attrs, ...children);
     return ret;
 }
 
 function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {
     const
-        oldStateString = oldState instanceof Reader ? 'Reader: ' + JSON.stringify(oldState.__data) : oldState.toString(),
-        newStateString = newState instanceof Reader ? 'Reader: ' + JSON.stringify(newState.__data) : newState.toString();
+        oldStateString = oldState instanceof Reader ? 'Reader: ' + JSON.stringify(oldState.__state) : oldState.toString(),
+        newStateString = newState instanceof Reader ? 'Reader: ' + JSON.stringify(newState.__state) : newState.toString();
 
 
     console.log("\n=== COMPONENT STATE TRANSITION =======================\n");

@@ -7,23 +7,23 @@ import ButtonGroup from './ButtonGroup'
 
 const {Reader} = mojo;
 
-const counterView = (html, ctrl, ctx) => (props, children) => {
+const counterView = (html, state) => props => {
     return (
         html.div(
             {},
             ButtonGroup(
                 {},
-                Button({onClick: _ => ctrl.incrementCounter(-10), text: '-10'}),
-                Button({onClick: _ => ctrl.incrementCounter(-1), text: '-1'})),
+                Button({onClick: _ => state.incrementCounter(-10), text: '-10'}),
+                Button({onClick: _ => state.incrementCounter(-1), text: '-1'})),
 
             html.span(
                 {style: {padding: '0 10px'}},
-                props.get('label') + ': ' + ctrl.get('counter')),
+                props.get('label') + ': ' + state.get('counter')),
 
             ButtonGroup(
                 {},
-                Button({onClick: _ => ctrl.incrementCounter(1), text: '+1'}),
-                Button({onClick: _ => ctrl.incrementCounter(10), text: '+10'})))
+                Button({onClick: _ => state.incrementCounter(1), text: '+1'}),
+                Button({onClick: _ => state.incrementCounter(10), text: '+10'})))
     );
 }
 

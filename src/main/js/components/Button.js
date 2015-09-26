@@ -3,7 +3,7 @@
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
-const buttonView = (html, ctrl, ctx) => (props, children) => {
+const buttonView = html => props => {
     const onClickProp = props.get('onClick'),
           onClickCallback = (typeof onClickProp === 'function' ? onClickProp: null),
           icon = props.get('icon'),
@@ -38,15 +38,13 @@ const buttonView = (html, ctrl, ctx) => (props, children) => {
     );
 }
 
-const buttonDefaultProps = {
-    type: 'default'
-}
-
 
 export default Component.createClass({
-    typeName: "facekit/Button",
+    typeName: 'facekit/Button',
     view: buttonView,
-    defaultProps: buttonDefaultProps
+    defaultProps: {
+        type: 'default'
+    }
 });
 
 

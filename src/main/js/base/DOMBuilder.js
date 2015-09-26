@@ -17,6 +17,7 @@ export default class DOMBuilder {
         if (typeof tag !== 'string' || !tag.match(/^[A-Za-z][A-Za-z0-9_\-\.]*$/)) {
             throw new TypeError(`[DOMBuilder#createElement] Illegal argument 'tag': ${tag}`);
         }
+
 /*
         const
             children = [],
@@ -43,7 +44,7 @@ function toReact(elem) {
     var ret;
 
     if (elem instanceof Component) {
-        const children = Seq.from(elem.getChildren()).map(toReact).toArray();
+        const children = Seq.from(elem.getChildren()).map(toReact);
         ret = React.createElement(elem.constructor.toReact(), elem.getAttributes(), ...children);
     } else {
         ret = elem;
@@ -54,7 +55,8 @@ function toReact(elem) {
 DOMBuilder.REACT = new DOMBuilder({
     createElement(tag, attrs, ...children) {
         const mappedChildren = Seq.from(children).map(toReact).toArray();
-        return React.createElement(tag, attrs, ...mappedChildren);
+        var ret = React.createElement(tag, attrs, ...mappedChildren);
+        return ret;
     }
 });
 

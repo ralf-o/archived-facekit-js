@@ -3,7 +3,7 @@
 import Component from '../base/Component';
 import PaginationHelper from '../helpers/PaginationHelper';
 
-const view = (html, ctrl, ctx) => (props, children) => {
+const view = (html, data, ctx) => (props, children) => {
     const metrics = PaginationHelper.calcPaginationMetrics(
             props.get('pageIndex'),
             props.get('pageSize'),

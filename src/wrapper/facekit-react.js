@@ -19,6 +19,10 @@ facekit.react.PaginationInfo = FkPaginationInfo.toReact();
 import FkPager from '../main/js/components/Pager';
 facekit.react.Pager = FkPager.toReact();
 
+import FkTabs from '../main/js/components/Tabs';
+facekit.react.Tabs = FkTabs.toReact();
+facekit.react.Tabs.Tab = FkTabs.Tab.toReact();
+
 
 
 /*

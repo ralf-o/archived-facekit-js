@@ -6,7 +6,7 @@ import ButtonGroup from './ButtonGroup';
 import Button from './Button';
 import PaginationInfo from './PaginationInfo';
 
-const pagerView = (html, ctrl, ctx) => (props, children) => {
+const pagerView = (html, state, ctx) => (props, children) => {
     const
         metrics = PaginationHelper.calcPaginationMetrics(
             props.get('pageIndex'),
