@@ -94,7 +94,7 @@ export default class Component {
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = () => (domBuilder, ctrl) => (props, children, state, ctx) => {
+        newClass.getView = () => (domBuilder, ctrl, ctx) => (props, children) => {
             // TODO!!!
             const childrenArr = true || !allowedChildrenTypes
                 ? children
@@ -109,7 +109,7 @@ export default class Component {
                     })
                     .toArray();
 
-            return view(domBuilder, ctrl)(new Reader(props), childrenArr, state, ctx);
+            return view(domBuilder, ctrl, ctx)(new Reader(props), childrenArr);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
@@ -164,6 +164,17 @@ function toReactComponentClass(componentClass) {
                         this.setState({data: newState});
                     }
                 }
+            }
+
+            // TODO !!!!
+            ctrl.get = key => {
+                const data = this.state.data;
+
+                return (data instanceof Reader
+                            || typeof Immutable === ' object' && Immutable && data instanceof Immutable.Collection)
+
+                       ? data.get(key)
+                       : data[key];
             }
 
             return view(DOMBuilder.REACT, ctrl)(this.props, this.props.children, this.state.data, this.context);

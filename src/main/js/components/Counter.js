@@ -7,7 +7,7 @@ import ButtonGroup from './ButtonGroup'
 
 const {Reader} = mojo;
 
-const counterView = (html, ctrl) => (props, children, state, ctx) => {
+const counterView = (html, ctrl, ctx) => (props, children) => {
     return (
         html.div(
             {},
@@ -18,7 +18,7 @@ const counterView = (html, ctrl) => (props, children, state, ctx) => {
 
             html.span(
                 {style: {padding: '0 10px'}},
-                props.get('label') + ': ' + state.get('counter')),
+                props.get('label') + ': ' + ctrl.get('counter')),
 
             ButtonGroup(
                 {},
