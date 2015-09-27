@@ -3,7 +3,7 @@
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
-const buttonView = html => props => {
+const buttonView = html => props => {console.log(11111, props)
     const onClickProp = props.get('onClick'),
           onClickCallback = (typeof onClickProp === 'function' ? onClickProp: null),
           icon = props.get('icon'),

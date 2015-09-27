@@ -28,7 +28,7 @@ const counterView = (html, state) => props => {
 }
 
 export default Component.createClass({
-    typeName: "facekit/Button",
+    typeName: "facekit/Counter",
     view: counterView,
     initialState: new Reader({counter: 0}),
     stateTransitions: {

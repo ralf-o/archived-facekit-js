@@ -1,6 +1,7 @@
 'use strict';
 
 import Component from './Component';
+import Element from './Element';
 
 const Seq = mojo.Seq;
 
@@ -10,55 +11,38 @@ export default class DOMBuilder {
      *   The configuration of the DOMBuilder
      */
     constructor(config) {
-        this.__createElement = config.createElement;
+        this.__convertElement = config.convertElement;
     }
 
-    createElement(tag, attributes, ...children) {
-        if (typeof tag !== 'string' || !tag.match(/^[A-Za-z][A-Za-z0-9_\-\.]*$/)) {
-            throw new TypeError(`[DOMBuilder#createElement] Illegal argument 'tag': ${tag}`);
+    static getDefault() {
+        let ret = DOMBuilder.__default;
+
+        if (!ret) {
+            ret = DOMBuilder.__default = new DOMBuilder({});
         }
+
+        return ret;
+    }
+}
+
 
 /*
-        const
-            children = [],
-            attrs = attributes || {};
-
-        for (let child of children) {
-            if (child !== undefined && child !== null && child !== '') {
-                const type = typeof arg;
-
-                if (type === 'function') {
-                    throw new TypeError("TODO"); //TODO
-                } else if (arg !== '') {
-                    children.push(arg);
-                }
-            }
-        }
-*/
-
-        return this.__createElement(tag, attributes, ...children);
-    }
-}
-
-function toReact(elem) {
-    var ret;
-
-    if (elem instanceof Component) {
-        const children = Seq.from(elem.getChildren()).map(toReact);
-        ret = React.createElement(elem.constructor.toReact(), elem.getAttributes(), ...children);
-    } else {
-        ret = elem;
-    }
-    return ret;
-}
-
 DOMBuilder.REACT = new DOMBuilder({
-    createElement(tag, attrs, ...children) {
-        const mappedChildren = Seq.from(children).map(toReact).toArray();
-        var ret = React.createElement(tag, attrs, ...mappedChildren);
+    convertElement: function convertElement (element) {
+        const tag = element.getTag(),
+              props = element.getProps(),
+              children = Seq.from(children).map(convertElement);
+
+        if (typeof tag === 'string') {
+            ret = React.createElement(tag, props, ...children);
+        } else if (tag.prototype instanceof Component) {
+            ret = React.createElement(tag.toReact(), props, ...children);
+        }
+
         return ret;
     }
 });
+*/
 
 const tagNames = [
     'a',
@@ -199,8 +183,9 @@ const tagNames = [
     'xmp'
 ];
 
+
 for (let tagName of tagNames) {
-    DOMBuilder.prototype[tagName] = function (...args) {
-        return this.createElement(tagName, ...args);
+    DOMBuilder.prototype[tagName] = function (attrs, ...children) {
+        return new Element(tagName, attrs, children);
     };
 }

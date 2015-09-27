@@ -1,5 +1,7 @@
 'use strict';
 
+
+import Element from './Element';
 import DOMBuilder from './DOMBuilder';
 
 const {Objects, Seq, Reader} = mojo;
@@ -10,21 +12,13 @@ Array.from = (items) => Seq.from(items).toArray(); // TODO - get rid of this
  * The base component class.
  */
 export default class Component {
-    constructor(attributes, ...children) {
-        this.__attributes = attributes;
-        this.__children == children;
-    }
-
-    static mount(component, target) {
-        throw "TODO";
-    }
-
     static createClass(config) {
         if (config === null || typeof config !== 'object') {
             throw new TypeError("[Component.createClass] First argument 'config' must be an object");
         }
 
-        const {typeName, view, stateTransitions, initialState, defaultProps, allowedChildrenTypes} = config;
+        const {typeName, view, stateTransitions, initialState, defaultProps,
+                allowedChildrenTypes, componentDidMount, componentWillUnmount} = config;
 
         if (typeName === undefined || typeName === null) {
            throw new TypeError("[Component.createClass] No 'typeName' provided in configuration object");
@@ -52,21 +46,23 @@ export default class Component {
             throw new TypeError("[Component.createClass] Invalid 'initialState' provided int configuration object");
         } else if (allowedChildrenTypes !== undefined && !Array.isArray(allowedChildrenTypes)) {
             throw new TypeError("[Component.createClass] Invalid value for 'allowedChildrenTypes'");
+        } else if (Objects.isSomething(componentDidMount) && typeof componentDidMount !== 'function') {
+           throw new TypeError('[Component.createClass] '
+                + "Configuration parameter 'componentDidMount must be a function");
+        } else if (Objects.isSomething(componentWillUnmount) && typeof componentWillUnmount !== 'function') {
+           throw new TypeError('[Component.createClass] '
+                + "Configuration parameter 'componentWillUnmount must be a function");
         }
 
-
         const newClass = function (attributes = {}, ...children) {
-            const ret = (this instanceof newClass ? this : new newClass(attributes, ...children));
-            ret.constructor = newClass;
-            ret.__attributes = attributes;
-            ret.__children = children;
+            if (this instanceof newClass) {
+                throw new Error('Components are not instantiable - do not use the new operator');
+            }
 
-            return ret;
+            return new Element(newClass, attributes, children);
         };
 
         newClass.prototype = Object.create(Component.prototype);
-        newClass.prototype.getAttributes = function() {return this.__attributes};
-        newClass.prototype.getChildren = function() {return this.__children};
 
         const messageHandler = (stateSetter, oldState, message) => {
             const propNames = Object.getOwnPropertyNames(message);
@@ -97,25 +93,32 @@ export default class Component {
 
         newClass.getView = () => (domBuilder, state, ctx) => (props, children) => {
             // TODO!!!!
-            const allowedChildren = true || !allowedChildrenTypes
+            const allowedChildren = false // || !allowedChildrenTypes
                 ? children
                 : Seq.from(children)
                     .filter(child => child !== undefined && child !== null && child !== false)
                     .map(child => {
+                        return child.type && child.type.__originalComponentClass
+                                ? new Element(child.type.__originalComponentClass, Reader.from(child.props), child.props.children)
+                                : child // TODO!!!
+                        /*
                         if (allowedChildrenTypes.length === 0) {
                             throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
                         } else if (!(child instanceof Component) || child.getComponentClass !== 'function' || !allowedChildrenTypes.includes(child.getFactory())) {
                             throw new TypeError(`Illegal child for component of type '${typeName}'`);
                         }
+                        */
                     })
                     .toArray();
 
-            return view(domBuilder, state, ctx)(new Reader(props), allowedChildren);
+            return view(domBuilder, state, ctx)(Reader.from(props), allowedChildren);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
+        newClass.getComponentDidMountHandler = () => componentDidMount || null;
+        newClass.getComponentWillUnmountHandler = () => componentWillUnmount || null;
 
         newClass.toReact = () => {
             if (typeof newClass.__reactClass !== 'function') {
@@ -134,7 +137,7 @@ export default class Component {
 class ReactComponent extends React.Component {
     constructor() {
         super();
-        this.state = {};
+        this.state = {data: {}};
     }
 
     render() {
@@ -172,7 +175,27 @@ class ReactComponent extends React.Component {
                    : state[key];
         }
 
-        return view(DOMBuilder.REACT, state)(this.props, this.props.children);
+        return view(DOMBuilder.getDefault(), state)(this.props, this.props.children).toReact();
+    }
+
+    componentDidMount() {
+        const
+            componentClass = this.__originalComponentClass,
+            componentDidMountHandler = componentClass.getComponentDidMountHandler();
+
+        if (componentDidMountHandler) {
+            componentDidMountHandler(React.findDOMNode(this));
+        }
+    }
+
+    componentWillUnmount() {
+        const
+            componentClass = this.__originalComponentClass,
+            componentWillUnmountHandler = componentClass.getComponentWillUnmountHandler();
+
+        if (componentWillUnmountHandler) {
+            componentWilUnmountHandler(React.findDOMNode(this));
+        }
     }
 }
 
