@@ -17,10 +17,12 @@
     <link rel="stylesheet" href="../../src/resources/css/button.css">
     <link rel="stylesheet" href="../../src/resources/css/pager.css">
     <link rel="stylesheet" href="../../src/resources/css/pagination-info.css">
+    <link rel="stylesheet" href="../../src/resources/css/tabs.css">
 </head>
 <body>
-<div id="content"></div>
-
+<div id="content" style="margin: 50px; float: left"></div>
+<br style="clear: both"/>
+<hr/>
 <script src="../../../mojo-toolkit/dist/v0.1.0/mojo-0.1.0.js"></script>
 
 <script src="../../dist/v0.1.0/facekit-react-0.1.0.js"></script>
@@ -40,9 +42,11 @@ const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs} = facekit.reac
 //const  widget = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
 
 const widget = (
-    <Tabs>
-        <Tabs.Tab caption="Tab-1">
-            Page 1 - <b>Juhu</b>
+    <Tabs tabStyle="pills" tabPosition="left" tabOrientation="horizontal">
+        <Tabs.Tab caption="Buttons">
+            Page1
+            <div>xxx
+            </div>
         </Tabs.Tab>
         <Tabs.Tab caption="Tab-2">
             Page 2 - <b>Juhu</b>

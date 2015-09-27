@@ -91,8 +91,9 @@ export default class Component {
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = () => (domBuilder, state, ctx) => (props, children) => {
+        newClass.getView = () => (domBuilder, state) => (props, children) => {
             // TODO!!!!
+            console.log(children)
             const allowedChildren = false // || !allowedChildrenTypes
                 ? children
                 : Seq.from(children)
@@ -111,7 +112,7 @@ export default class Component {
                     })
                     .toArray();
 
-            return view(domBuilder, state, ctx)(Reader.from(props), allowedChildren);
+            return view(domBuilder, state)(Reader.from(props), allowedChildren);
         };
 
         newClass.getStateTransitions = () => stateTransitions;
@@ -174,7 +175,7 @@ class ReactComponent extends React.Component {
                    ? state.get(key)
                    : state[key];
         }
-
+console.log(222, this.props.children, this.props)
         return view(DOMBuilder.getDefault(), state)(this.props, this.props.children).toReact();
     }
 

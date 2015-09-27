@@ -3,7 +3,7 @@
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
-const {Seq} = mojo;
+const {Arrays, Seq} = mojo;
 
 function renderTab(tab, html, activeTab, idx) {
     const
@@ -16,25 +16,37 @@ function renderTab(tab, html, activeTab, idx) {
             {className},
             html.a(
                 {},
-                props.get('caption')))
+                html.div({}, props.get('caption'))))
     );
 }
 
 const tabsView = html => (props, children) => {
     const
-       activeTab = props.get('activeTab');
+       activeTab = props.get('activeTab'),
+       tabPosition = Arrays.selectValue(['top', 'bottom', 'left', 'right'], props.get('tabPosition'), 'top'),
+       tabStyle = Arrays.selectValue(['tabs', 'pills'], props.get('tabStyle'), 'tabs'),
+       tabOrientation = Arrays.selectValue(['horizontal', 'vertical'], props.get('tabOrientation'), 'horizontal'),
+       preventSize = !!props.get('preventSize');
+
+    const header = html.div({className: 'fk-tabs-header'}, html.ul(
+                                   {className: 'nav nav-' + tabStyle},
+                                   ...Seq.from(children).map((child, idx) => renderTab(child, html, activeTab, idx))));
+
+    const body = html.div(
+                {className: 'fk-tabs-body'},
+                 ...children.map((child, index) => html.div(
+                        {className: 'fk-tabs-page' + (activeTab === index || activeTab === child.getProps().get('name') ? '' : ' fk-hidden')},
+                        child)));
+
+    const parts = tabPosition === 'bottom'
+            ? [body, header]
+            : [header, body];
 
 
     const ret = (
-        html.div({},
-            html.ul(
-                {className: 'fk-tabs-header nav nav-tabs'},
-                ...Seq.from(children).map((child, idx) => renderTab(child, html, activeTab, idx))),
-            html.div(
-                {className: 'fk-tabs-body'},
-                 ...children.map((child, index) => html.div(
-                        {className: 'fk-tabs-page', style: {display: activeTab === index || activeTab === child.getProps().get('name') ? 'block' : 'none'}},
-                        child))))
+        html.div(
+            {className: 'fk-tabs fk-tabs-' + tabPosition + ' fk-tabs-' + tabOrientation + (!preventSize ? '' : ' fk-tabs-prevent-size ')},
+            ...parts)
     );
 
     return ret;
@@ -44,19 +56,23 @@ const Tabs = Component.createClass({
     typeName: 'facekit/Tabs',
     view: tabsView,
     defaultProps: {
-        activeTab: 0
+        activeTab: 0,
+        tabPosition: 'top',
+        tabStyle: 'tabs',
+        tabOrientation: 'horizontal',
+        preventSize: true
     },
     componentDidMount: (domElem) => {
         const
             $ = jQuery,
             $elem = $(domElem);
 
-        $elem.find('.fk-tabs-header:first > li')
+        $elem.find('.fk-tabs-header:first > ul > li')
             .each((index, li) => {
                 $(li).on('click', evt => {
                     evt.preventDefault();
-                    $('.fk-tabs-body:first > .fk-tabs-page').hide();
-                    $($('.fk-tabs-body:first > .fk-tabs-page').get(index)).show();
+                    $('.fk-tabs-body:first > .fk-tabs-page').addClass('fk-hidden');
+                    $($('.fk-tabs-body:first > .fk-tabs-page').get(index)).removeClass('fk-hidden');
                 });
             })
             .on('click', evt => {
@@ -71,7 +87,7 @@ const Tabs = Component.createClass({
 
 Tabs.Tab = Component.createClass({
     typeName: 'facekit/Tabs.Tab',
-    view: html => (props, children) => {
+    view: html => (props, children) => {console.log(333, children)
         return html.div({}, ...children);
     }
 });
