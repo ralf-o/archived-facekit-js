@@ -101,7 +101,7 @@ export default class Component {
                     .map(child => {
                         return child.type && child.type.__originalComponentClass
                                 ? new Element(child.type.__originalComponentClass, Reader.from(child.props), child.props.children)
-                                : child // TODO!!!
+                                : child; // TODO!!!
                         /*
                         if (allowedChildrenTypes.length === 0) {
                             throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");

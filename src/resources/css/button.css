@@ -1,16 +1,24 @@
-.w-button.w-has-text .w-icon.w-left {
+.fk-button > .fk-has-text .fk-icon.fk-left {
     xmargin-right: 0.5em;
 }
 
-.w-button.w-has-text .w-icon.w-right {
+.fk-button > .fk-has-text .fk-icon.fk-right {
     xmargin-left: 0.px;
 }
 
-.w-button.w-has-text .w-icon.w-top,
-.w-button.w-has-text .w-icon.w-bottom {
+.fk-button > .fk-has-text .fk-icon.fk-top,
+.fk-button > .fk-has-text .fk-icon.fk-bottom {
     display: block;
 }
 
-.w-button span.caret {
+.fk-button span.caret {
     margin-left: 4px;
+}
+
+.fk-button > .btn-link.fk-has-icon.fk-has-text:hover {
+    text-decoration: none;
+}
+
+.fk-button > .btn-link.fk-has-icon.fk-has-text:hover > .fk-button-text {
+    text-decoration: underline;
 }

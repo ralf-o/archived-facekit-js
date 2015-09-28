@@ -24,24 +24,23 @@ const tabsView = html => (props, children) => {
     const
        activeTab = props.get('activeTab'),
        tabPosition = Arrays.selectValue(['top', 'bottom', 'left', 'right'], props.get('tabPosition'), 'top'),
-       tabStyle = Arrays.selectValue(['tabs', 'pills'], props.get('tabStyle'), 'tabs'),
+       tabStyle = Arrays.selectValue(['default', 'pills'], props.get('tabStyle'), 'default'),
        tabOrientation = Arrays.selectValue(['horizontal', 'vertical'], props.get('tabOrientation'), 'horizontal'),
        preventSize = !!props.get('preventSize');
 
     const header = html.div({className: 'fk-tabs-header'}, html.ul(
-                                   {className: 'nav nav-' + tabStyle},
+                                   {className: 'nav nav-' + (tabStyle === 'pills' ? 'pills' : 'tabs')},
                                    ...Seq.from(children).map((child, idx) => renderTab(child, html, activeTab, idx))));
 
     const body = html.div(
                 {className: 'fk-tabs-body'},
                  ...children.map((child, index) => html.div(
-                        {className: 'fk-tabs-page' + (activeTab === index || activeTab === child.getProps().get('name') ? '' : ' fk-hidden')},
+                        {className: 'fk-tabs-page', style: {display: activeTab === index || activeTab === child.getProps().get('name') ? 'block' : 'none'}},
                         child)));
 
     const parts = tabPosition === 'bottom'
             ? [body, header]
             : [header, body];
-
 
     const ret = (
         html.div(
@@ -58,7 +57,7 @@ const Tabs = Component.createClass({
     defaultProps: {
         activeTab: 0,
         tabPosition: 'top',
-        tabStyle: 'tabs',
+        tabStyle: 'default',
         tabOrientation: 'horizontal',
         preventSize: true
     },
@@ -71,27 +70,19 @@ const Tabs = Component.createClass({
             .each((index, li) => {
                 $(li).on('click', evt => {
                     evt.preventDefault();
-                    $('.fk-tabs-body:first > .fk-tabs-page').addClass('fk-hidden');
-                    $($('.fk-tabs-body:first > .fk-tabs-page').get(index)).removeClass('fk-hidden');
+                    $elem.find('.fk-tabs-body:first > .fk-tabs-page').hide();
+                    $elem.find($('.fk-tabs-body:first > .fk-tabs-page').get(index)).show();
                 });
             })
             .on('click', evt => {
                 evt.preventDefault();
-                jQuery(evt.target).tab('show')
+                $(evt.target).tab('show')
             });
     },
     componentWillUnmount: () => {
         alert('unmounting');
     }
 });
-
-Tabs.Tab = Component.createClass({
-    typeName: 'facekit/Tabs.Tab',
-    view: html => (props, children) => {console.log(333, children)
-        return html.div({}, ...children);
-    }
-});
-
 
 export default Tabs;
 

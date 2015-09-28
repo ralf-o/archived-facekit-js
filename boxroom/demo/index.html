@@ -1,26 +1,45 @@
 <!DOCTYPE html>
 
 <html>
-<head>
+<link>
     <title>Test</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
 
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
+<xxxscript src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></xxxscript>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.7.5/immutable.js"></script>
 
+
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css"></link>
+
+    <xxxlink rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/yeti/bootstrap.min.css"></xxxlink>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
+    <link rel="stylesheet" href="../../src/resources/css/common.css">
     <link rel="stylesheet" href="../../src/resources/css/button.css">
     <link rel="stylesheet" href="../../src/resources/css/pager.css">
     <link rel="stylesheet" href="../../src/resources/css/pagination-info.css">
     <link rel="stylesheet" href="../../src/resources/css/tabs.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+    <style type="text/css">
+        * {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-<div id="content" style="margin: 50px; float: left"></div>
+<div id="content" style="margin: 50px 50px 0 50px;"></div>
 <br style="clear: both"/>
 <hr/>
 <script src="../../../mojo-toolkit/dist/v0.1.0/mojo-0.1.0.js"></script>
@@ -31,9 +50,10 @@
 
 var Strings = mojo.Strings,
     Objects = mojo.Objects,
-    Reader = mojo.Reader;
+    Reader = mojo.Reader,
+    Seq = mojo.Seq;
 
-const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs} = facekit.react;
+const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs, Tab} = facekit.react;
 
 //const widget = <Button text="Juhu" onClick={() => alert('juhu')}/>;
 //const widget = <ButtonGroup><Button onClick={() => {alert('juhu')}} text="Button-1"/><Button text="Button-2"/></ButtonGroup>;
@@ -41,18 +61,166 @@ const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs} = facekit.reac
 //const widget = <PaginationInfo pageIndex={0} pageSize={25} totalItemCount={489}/>
 //const  widget = <Pager onChange="alert(111)" pageIndex={0} pageSize={25} totalItemCount={489}/>
 
+const
+    buttonTypes = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link'],
+    sizes = ['large', 'default', 'small', 'extra-small'],
+    exampleIcons = ['fa-calendar', 'fa-twitter', 'glyphicon-home', 'glyphicon-print'],
+    iconPositions = ['left', 'top', 'right', 'bottom'];
+
 const widget = (
-    <Tabs tabStyle="pills" tabPosition="left" tabOrientation="horizontal">
-        <Tabs.Tab caption="Buttons">
-            Page1
-            <div>xxx
+    <Tabs tabStyle="default" tabPosition="top">
+        <Tab caption="Buttons">x
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col-md-2">Enabled buttons:</div>
+                    {Seq.from(buttonTypes).map(buttonType =>
+                        <div className="col-md-1">
+                            <Button text={buttonType} type={buttonType} onClick={() => alert('You clicked: ' + buttonType)}/>
+                        </div>)
+                    }
+                </div>
+                <div className="row">
+                    <div className="col-md-2">Disabled buttons:</div>
+                    {Seq.from(buttonTypes).map(buttonType =>
+                        <div className="col-md-1">
+                            <Button text={buttonType} type={buttonType} disabled={true}/>
+                        </div>)
+                    }
+                </div>
+                <div className="row">
+                    <div className="col-md-2">Buttons with icons</div>
+                    {Seq.from(exampleIcons).map(icon =>
+                        <div className="col-md-1">
+                            <Button text={icon.replace(/^[^\-]+-/, '')} icon={icon}/>
+                        </div>)
+                    }
+                </div>
+                <div className="row">
+                    <div className="col-md-2">Buttons with different icon positions</div>
+                    {Seq.from(iconPositions).map(iconPosition =>
+                        <div className="col-md-1">
+                            <Button text={iconPosition} icon="fa-cab" iconPosition={iconPosition}/>
+                        </div>)
+                    }
+                </div>
+                <div className="row">
+                    <div className="col-md-2">Links with different icon positions</div>
+                    {Seq.from(iconPositions).map(iconPosition =>
+                        <div className="col-md-1">
+                            <Button text={iconPosition} icon="fa-cab" iconPosition={iconPosition} type="link"/>
+                        </div>)
+                    }
+                </div>
+                 <div className="row">
+                    <div className="col-md-2">Button sizes:</div>
+                    {Seq.from(sizes).map(size =>
+                        <div className="col-md-1">
+                            <Button text={size} size={size} />
+                        </div>)
+                    }
+                </div>
+                 <div className="row">
+                    <div className="col-md-2">Link sizes:</div>
+                    {Seq.from(sizes).map(size =>
+                        <div className="col-md-1">
+                            <Button text={size} size={size} type="link"/>
+                        </div>)
+                    }
+                </div>
+                <div className="row">
+                    <div className="col-md-2">Menu buttons:</div>
+                    <Button className="col-md-3" text="Menu button" menu={[{text: 'Item 1'}]}/>
+                </div>
             </div>
-        </Tabs.Tab>
-        <Tabs.Tab caption="Tab-2">
-            Page 2 - <b>Juhu</b>
-        </Tabs.Tab>
-        <Tabs.Tab caption="Tab-3"/>
-        <Tabs.Tab caption="Tab-4"/>
+        </Tab>
+        <Tab caption="Button Groups" >x
+            <div className="container-fluid">
+                <div className="row">
+                    <ButtonGroup className="col-md-2">
+                        <Button text="New"/>
+                        <Button text="View"/>
+                        <Button text="Edit"/>
+                        <Button text="Delete"/>
+                    </ButtonGroup>
+
+                    <ButtonGroup className="col-md-2">
+                        <Button text="New" type="info"/>
+                        <Button text="Edit" type="warning"/>
+                        <Button text="Delete" type="delete" type="danger"/>
+                        <Button text="Export" type="success" menu={[{text: 'Juhu'}]} />
+                   </ButtonGroup>
+
+                   <ButtonGroup className="col-md-3">
+                        <Button text="Single Button" type="default"/>
+                    </ButtonGroup>
+                </div>
+            </div>
+        </Tab>
+        <Tab caption="Pagination" >x
+            <div className="container-fluid">
+                <div className="row">
+                    <Pager className="col-md-3" pageIndex={2} pageSize={25} totalItemCount={255}/>
+                </div>
+            </div>
+        </Tab>
+        <Tab caption="Tabs" >x
+            <div className="container-fluid">
+                <div className="row">
+                    <Tabs className="col-md-10" tabPosition="left" tabStyle="pills">
+                        <Tab caption="default">x
+                            <Tabs>
+                                <Tab caption="Tab-1"/>
+                                <Tab caption="Tab-2"/>
+                                <Tab caption="Tab-3"/>
+                                <Tab caption="Tab-4"/>
+                            </Tabs>
+                        </Tab>
+                        <Tab caption="Pills">x
+                            <Tabs tabType="pills">
+                                <Tab caption="Tab-1"/>
+                                <Tab caption="Tab-2"/>
+                                <Tab caption="Tab-3"/>
+                                <Tab caption="Tab-4"/>
+                            </Tabs>
+                        </Tab>
+                        <Tab caption="Tab-3"/>
+                        <Tab caption="Tab-4"/>
+                    </Tabs>
+                </div>
+            </div>
+        </Tab>
+        <Tab caption="Tab-3" >x
+            <div className="container-fluid">
+                <div className="row">
+                <h3>Some Form</h3>
+                </div>
+                <div className="row">
+                    <label className="col-md-2 text-right">First name:</label>
+                    <div className="col-md-10">
+                        <input className="col-md-10 form-control" placeholder="Please enter your forename" />
+                    </div>
+                </div>
+                <div className="row">
+                    <label className="col-md-2 text-right">Last name:</label>
+                    <div className="col-md-10">
+                        <input className="form-control" placeholder="Please enter your surname" />
+                    </div>
+                </div>
+                <div className="row">
+                    <label className="col-md-2 text-right">Postcode:</label>
+                    <div className="col-md-3">
+                        <input className="form-control" placeholder="" />
+                    </div>
+                    <label className="col-md-1 text-right">City:</label>
+                    <div className="col-md-6">
+                        <input className="form-control" placeholder="" />
+                    </div>
+                </div>
+
+            </div>
+        </Tab>
+        <Tab caption="Tab-4"/>
+        <Tab caption="Tab-5"/>
     </Tabs>
 );
 

@@ -20,21 +20,6 @@
     position: relative;
 }
 
-.fk-tabs > .fk-tabs-body > .fk-tabs-page {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.fk-tabs > .fk-tabs-body > .fk-tabs-page.fk-hidden {
-    display: none;
-}
-
-.fk-tabs.fk-tabs-prevent-size > .fk-tabs-body > .fk-tabs-page.fk-hidden {
-    display: block;
-    visibility: hidden;
-}
-
 /*--- tab position: top/horizontal -------------------------------*/
 
 
@@ -44,7 +29,7 @@
 
 
 
-/*--- tab position: top/tabs-left -------------------------------*/
+/*--- tab position: top/vertical ----------------------------------*/
 
 /*
 .fk-tabs.fk-tabs-top {
@@ -84,6 +69,7 @@
     border: 1px solid red;
 }
 */
+
 /*--- tab position: left/horizontal -------------------------------*/
 
 .fk-tabs.fk-tabs-left.fk-tabs-horizontal  > .fk-tabs-header {
@@ -135,6 +121,7 @@
 
 /*--- tab position: left/vertical ---------------------------------*/
 
+
 .fk-tabs.fk-tabs-left.fk-tabs-vertical  > .fk-tabs-header {
     margin: -43px 43px 0  43px;
     float: left;
@@ -146,7 +133,7 @@
 }
 
 .fk-tabs.fk-tabs-left.fk-tabs-vertical > .fk-tabs-body {
-  padding: 0 0 0 60px;
+    padding: 0 0 0 60px;
 }
 
 /*--- tab position: bottom ----------------------------------------*/

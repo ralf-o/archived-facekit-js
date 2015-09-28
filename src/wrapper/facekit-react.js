@@ -21,7 +21,9 @@ facekit.react.Pager = FkPager.toReact();
 
 import FkTabs from '../main/js/components/Tabs';
 facekit.react.Tabs = FkTabs.toReact();
-facekit.react.Tabs.Tab = FkTabs.Tab.toReact();
+
+import FkTab from '../main/js/components/Tab';
+facekit.react.Tab = FkTab.toReact();
 
 
 

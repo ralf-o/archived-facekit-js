@@ -1,5 +1,7 @@
 'use static';
 
+import Element from '../base/Element';
+
 export default class ComponentHelper {
     static buildCssClass(...tokens) {
         let ret = '';
@@ -45,17 +47,17 @@ export default class ComponentHelper {
         let ret = null;
 
         icon = Strings.trimToNull(icon);
-        className = Objects.asString(className);
+        className = ComponentHelper.buildCssClass(className);
 
         if (icon !== null) {
             if (icon.indexOf('.') >= 0) {
-                ret = React.createElement('img', {href: icon, alt: '', className: className});
+                ret = new Element('img', {href: icon, alt: '', className: className});
             } else {
                 let match = icon.match(/(?:^|\s)(fa|glyphicon)-./),
                     fullClassName = (match ? match[1] : '') + ' ' + icon + ' ' + className;
 
                 if (match) {
-                    ret = React.createElement('span', {className: fullClassName});
+                    ret =new Element('span', {className: fullClassName});
                 }
             }
         }
@@ -63,6 +65,7 @@ export default class ComponentHelper {
         return ret;
     }
 
+/*
     static isComponentOfType(obj, componentType) {
         return obj
                 && React.isValidElement(obj)
@@ -81,4 +84,5 @@ export default class ComponentHelper {
                 :  Stream.from(children)
                         .filter(child => ComponentHelper.isComponentOfType(child, componentType));
     }
+*/
 }
