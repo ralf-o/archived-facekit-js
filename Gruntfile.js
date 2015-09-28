@@ -99,6 +99,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('compile', ['babel']);
     grunt.registerTask('test', ['babel', 'mochaTest']);
-    grunt.registerTask('dist', ['clean', 'babel', 'esdoc', 'browserify',  /* 'uglify', 'compress'*/]);
+    grunt.registerTask('dist', ['clean', 'babel', 'browserify',  /* 'uglify', 'compress',*/ 'esdoc',]);
     grunt.registerTask('default', ['dist']);
 };

@@ -1,7 +1,13 @@
 'use strict';
 
+import Element from '../main/js/base/Element';
 
-window.facekit = window.facekit || {};
+window.facekit = window.facekit || {
+    base: {
+        Element: Element
+    }
+};
+
 facekit.react = {};
 
 import FkButton from '../main/js/components/Button';

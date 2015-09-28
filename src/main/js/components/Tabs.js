@@ -13,7 +13,7 @@ function renderTab(tab, html, activeTab, idx) {
 
     return (
         html.li(
-            {className},
+            {className: className},
             html.a(
                 {},
                 html.div({}, props.get('caption'))))

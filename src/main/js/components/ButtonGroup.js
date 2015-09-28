@@ -11,9 +11,9 @@ const buttonGroupView = html => (props, children) => {
                 'fk-button-group',
                 (hasChildren ? 'btn-group' : ''),
                 props.get('className'));
-console.log(4444,children)
+
     return (
-        html.div(
+        html.section(
             {className: className, role: 'group'}, ...children)
     );
 };

@@ -5,7 +5,7 @@ import ComponentHelper from '../helpers/ComponentHelper';
 
 export default Component.createClass({
     typeName: 'facekit/Tabs.Tab',
-    view: html => (props, children) => {console.log(333, children)
+    view: html => (props, children) => {
         return html.div({}, ...children);
     }
 });

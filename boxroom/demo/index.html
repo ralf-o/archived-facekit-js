@@ -9,7 +9,6 @@
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
-<xxxscript src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></xxxscript>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.7.5/immutable.js"></script>
 
@@ -53,6 +52,7 @@ var Strings = mojo.Strings,
     Reader = mojo.Reader,
     Seq = mojo.Seq;
 
+var {Element} = facekit.base;
 const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs, Tab} = facekit.react;
 
 //const widget = <Button text="Juhu" onClick={() => alert('juhu')}/>;
@@ -67,9 +67,9 @@ const
     exampleIcons = ['fa-calendar', 'fa-twitter', 'glyphicon-home', 'glyphicon-print'],
     iconPositions = ['left', 'top', 'right', 'bottom'];
 
-const widget = (
+var widget = (
     <Tabs tabStyle="default" tabPosition="top">
-        <Tab caption="Buttons">x
+        <Tab caption="Buttons">
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-md-2">Enabled buttons:</div>
@@ -133,7 +133,7 @@ const widget = (
                 </div>
             </div>
         </Tab>
-        <Tab caption="Button Groups" >x
+        <Tab caption="Button Groups">
             <div className="container-fluid">
                 <div className="row">
                     <ButtonGroup className="col-md-2">
@@ -156,18 +156,18 @@ const widget = (
                 </div>
             </div>
         </Tab>
-        <Tab caption="Pagination" >x
+        <Tab caption="Pagination" >
             <div className="container-fluid">
                 <div className="row">
                     <Pager className="col-md-3" pageIndex={2} pageSize={25} totalItemCount={255}/>
                 </div>
             </div>
         </Tab>
-        <Tab caption="Tabs" >x
+        <Tab caption="Tabs" >
             <div className="container-fluid">
                 <div className="row">
                     <Tabs className="col-md-10" tabPosition="left" tabStyle="pills">
-                        <Tab caption="default">x
+                        <Tab caption="default">
                             <Tabs>
                                 <Tab caption="Tab-1"/>
                                 <Tab caption="Tab-2"/>
@@ -175,7 +175,7 @@ const widget = (
                                 <Tab caption="Tab-4"/>
                             </Tabs>
                         </Tab>
-                        <Tab caption="Pills">x
+                        <Tab caption="Pills">
                             <Tabs tabType="pills">
                                 <Tab caption="Tab-1"/>
                                 <Tab caption="Tab-2"/>
@@ -189,7 +189,7 @@ const widget = (
                 </div>
             </div>
         </Tab>
-        <Tab caption="Tab-3" >x
+        <Tab caption="Tab-3" >
             <div className="container-fluid">
                 <div className="row">
                 <h3>Some Form</h3>
@@ -223,6 +223,8 @@ const widget = (
         <Tab caption="Tab-5"/>
     </Tabs>
 );
+
+
 
 React.render(widget, document.getElementById('content'));
 

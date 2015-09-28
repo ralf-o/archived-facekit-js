@@ -2,13 +2,23 @@
 
 import Component from './Component';
 
-const {Seq} = mojo;
+const {Objects, Seq} = mojo;
 
 export default class Element {
     constructor(tag, props, children) {
         this.__tag = tag;
         this.__props = props;
         this.__children = children;
+
+        if (Objects.isNothing(this.__children)) {
+            this.__children = [];
+        } else if (!Array.isArray(this.__children)) {
+            if (typeof this.__children !== 'string' && Seq.isSeqable(this.__children)) {
+                this.__children = Seq.from(this.__children).toArray();
+            } else {
+                this.__children = [this.__children];
+            }
+        }
     }
 
     getTag() {

@@ -93,7 +93,6 @@ export default class Component {
 
         newClass.getView = () => (domBuilder, state) => (props, children) => {
             // TODO!!!!
-            console.log(children)
             const allowedChildren = false // || !allowedChildrenTypes
                 ? children
                 : Seq.from(children)
@@ -175,7 +174,7 @@ class ReactComponent extends React.Component {
                    ? state.get(key)
                    : state[key];
         }
-console.log(222, this.props.children, this.props)
+
         return view(DOMBuilder.getDefault(), state)(this.props, this.props.children).toReact();
     }
 
@@ -229,7 +228,6 @@ function printStateTransitionDebugInfo(componentClass, oldState, newState, trans
     const
         oldStateString = oldState instanceof Reader ? 'Reader: ' + JSON.stringify(oldState.__state) : oldState.toString(),
         newStateString = newState instanceof Reader ? 'Reader: ' + JSON.stringify(newState.__state) : newState.toString();
-
 
     console.log("\n=== COMPONENT STATE TRANSITION =======================\n");
     console.log("--- component type ---------------------------------");
