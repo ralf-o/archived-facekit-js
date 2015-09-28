@@ -91,7 +91,13 @@ export default class Component {
 
         newClass.getTypeName = () => typeName;
 
-        newClass.getView = () => (domBuilder, state) => (props, children) => {
+
+        const
+            renderView = (typeof view === 'object' ? view.renderView : view),
+            initView = (typeof view === 'object' ? view.initView : domElem => () => {});
+
+
+        const enhancedRenderView = (domBuilder, state) => (props, children) => {
             // TODO!!!!
             const allowedChildren = false // || !allowedChildrenTypes
                 ? children
@@ -101,24 +107,29 @@ export default class Component {
                         return child.type && child.type.__originalComponentClass
                                 ? new Element(child.type.__originalComponentClass, Reader.from(child.props), child.props.children)
                                 : child; // TODO!!!
-                        /*
-                        if (allowedChildrenTypes.length === 0) {
-                            throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
-                        } else if (!(child instanceof Component) || child.getComponentClass !== 'function' || !allowedChildrenTypes.includes(child.getFactory())) {
-                            throw new TypeError(`Illegal child for component of type '${typeName}'`);
-                        }
-                        */
+
+                        //if (allowedChildrenTypes.length === 0) {
+                        //    throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
+                        //} else if (!(child instanceof Component) || child.getComponentClass !== 'function' || !allowedChildrenTypes.includes(child.getFactory())) {
+                        //    throw new TypeError(`Illegal child for component of type '${typeName}'`);
+                        //}
+
                     })
                     .toArray();
 
-            return view(domBuilder, state)(Reader.from(props), allowedChildren);
+
+
+             return renderView(domBuilder, state)(Reader.from(props), allowedChildren);
         };
+
+        newClass.getView = () => ({initView: initView, renderView: enhancedRenderView});
+
 
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
-        newClass.getComponentDidMountHandler = () => componentDidMount || null;
-        newClass.getComponentWillUnmountHandler = () => componentWillUnmount || null;
+       // newClass.getComponentDidMountHandler = () => componentDidMount || null;
+       // newClass.getComponentWillUnmountHandler = () => componentWillUnmount || null;
 
         newClass.toReact = () => {
             if (typeof newClass.__reactClass !== 'function') {
@@ -138,6 +149,7 @@ class ReactComponent extends React.Component {
     constructor() {
         super();
         this.state = {data: {}};
+        this.__cleanupCallback = null;
     }
 
     render() {
@@ -145,7 +157,7 @@ class ReactComponent extends React.Component {
             componentClass = this.__originalComponentClass,
             stateTransitions = componentClass.getStateTransitions(),
             view = componentClass.getView();
-            
+
         const state = {};
 
         if (stateTransitions) {
@@ -175,26 +187,19 @@ class ReactComponent extends React.Component {
                    : state[key];
         }
 
-        return view(DOMBuilder.getDefault(), state)(this.props, this.props.children).toReact();
+        return view.renderView(DOMBuilder.getDefault(), state)(Reader.from(this.props), this.props.children).toReact();
     }
 
     componentDidMount() {
-        const
-            componentClass = this.__originalComponentClass,
-            componentDidMountHandler = componentClass.getComponentDidMountHandler();
+        const view = this.__originalComponentClass.getView();
 
-        if (componentDidMountHandler) {
-            componentDidMountHandler(React.findDOMNode(this));
-        }
+        this.__cleanupCallback = view.initView(React.findDOMNode(this));
     }
 
     componentWillUnmount() {
-        const
-            componentClass = this.__originalComponentClass,
-            componentWillUnmountHandler = componentClass.getComponentWillUnmountHandler();
-
-        if (componentWillUnmountHandler) {
-            componentWilUnmountHandler(React.findDOMNode(this));
+        if (typeof this.__cleanupCallback === 'function') {
+            this.__cleanupCallback();
+            this.__cleanupCallback = null;
         }
     }
 }
