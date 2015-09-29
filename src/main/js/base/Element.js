@@ -50,4 +50,35 @@ export default class Element {
 
         return ret;
     }
+
+    toDeku() {
+        var ret;
+
+        const props = Objects.shallowCopy(this.__props);
+
+        if (props && props.className) {
+            props['class'] = props.className;
+            delete props.className;
+        }
+
+        const children = Seq.from(this.__children).map(child => child && child.toDeku ? child.toDeku() : child).toArray(); // TODO
+
+        if (typeof this.__tag === 'string') {
+            ret = {
+                type: this.__tag,
+                children: children,
+                attributes: props
+            };
+        } else if (this.__tag.prototype instanceof Component) {
+            ret = {
+                type: this.__tag.toDeku(),
+                children: children,
+                attributes: props
+            };
+        } else {
+            throw "This should never happen: " + tag;
+        }
+
+        return ret;
+    }
 }

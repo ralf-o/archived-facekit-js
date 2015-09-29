@@ -146,9 +146,18 @@ export default class Component {
             return newClass.__reactClass;
         }
 
+        newClass.toDeku = ()  => {
+            if (typeof newClass.__dekuClass !== 'function') {
+               newClass.__dekuClass = toDekuComponentClass(newClass);
+            }
+
+            return newClass.__dekuClass;
+        }
+
         return newClass;
     }
 }
+
 
 // ------------------------------------------------------------------
 
@@ -234,6 +243,31 @@ function toReactComponentClass(componentClass) {
     ret.__originalComponentClass = componentClass;
     ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
     return ret;
+}
+
+function toDekuComponentClass(componentClass) {
+    return {
+        initialState () {
+            return {
+            }
+        },
+
+        render ({props, state}) {
+            const view = componentClass.getView();
+                state = {};
+
+            return view.renderView(DOMBuilder.getDefault(), state)(Reader.from(props), props.children).toDeku();
+        },
+
+        afterUpdate (component) {
+        },
+
+        afterMount (component, el, setState) {
+        },
+
+        beforeUnmount (component) {
+        }
+    }
 }
 
 function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {

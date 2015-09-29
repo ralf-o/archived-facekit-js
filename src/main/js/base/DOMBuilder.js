@@ -3,7 +3,7 @@
 import Component from './Component';
 import Element from './Element';
 
-const Seq = mojo.Seq;
+const {Seq} = mojo;
 
 export default class DOMBuilder {
     /**
@@ -11,14 +11,16 @@ export default class DOMBuilder {
      *   The configuration of the DOMBuilder
      */
     constructor(config) {
-        this.__convertElement = config.convertElement;
+        this.createElement = config.createElement;
     }
 
     static getDefault() {
         let ret = DOMBuilder.__default;
 
         if (!ret) {
-            ret = DOMBuilder.__default = new DOMBuilder({});
+            ret = DOMBuilder.__default = new DOMBuilder({
+                createElement: (tag, props, children) => new Element(tag, props, children)
+            });
         }
 
         return ret;
@@ -43,6 +45,31 @@ DOMBuilder.REACT = new DOMBuilder({
     }
 });
 */
+
+
+
+DOMBuilder.DEKU = new DOMBuilder({
+    createElement: function createElement (tag, attributes, children) {
+        var ret;
+
+        if (tag.prototype instanceof Component) {
+            ret = {
+                type: tag.toDeku(),
+                attributes: props,
+                children: children
+            }
+        } else {
+            ret = {
+                type: tag,
+                attributes: attributes,
+                children: children
+            }
+        }
+console.log(ret)
+        return ret;
+    }
+});
+
 
 const tagNames = [
     'a',
@@ -183,9 +210,8 @@ const tagNames = [
     'xmp'
 ];
 
-
 for (let tagName of tagNames) {
-    DOMBuilder.prototype[tagName] = function (attrs, ...children) {
-        return new Element(tagName, attrs, children);
+    DOMBuilder.prototype[tagName] = function (props, ...children) {
+        return this.createElement(tagName, props, children);
     };
 }
