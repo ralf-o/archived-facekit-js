@@ -2,6 +2,8 @@
 
 import Element from '../base/Element';
 
+const {Strings, Seq} = mojo;
+
 export default class ComponentHelper {
     static buildCssClass(...tokens) {
         let ret = '';

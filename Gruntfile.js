@@ -40,8 +40,8 @@ module.exports = function (grunt) {
             facekitReact: {
                 //extend: true,
                 //src: ['build/src/**/*.js'],
-                src: 'build/src/wrapper/facekit-react.js',
-                dest: 'dist/v<%= pkg.version %>/facekit-react-<%= pkg.version %>.js'
+                src: 'build/src/wrapper/facekit.js',
+                dest: 'dist/v<%= pkg.version %>/facekit-<%= pkg.version %>.js'
             }
         },
         uglify: {

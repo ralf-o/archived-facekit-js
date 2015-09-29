@@ -2,7 +2,7 @@
 
 import Component from './Component';
 
-const {Objects, Seq} = mojo;
+const {Objects, Seq, Reader} = mojo;
 
 export default class Element {
     constructor(tag, props, children) {

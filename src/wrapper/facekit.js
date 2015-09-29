@@ -43,7 +43,7 @@ for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
 }
 
 
-import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs, DemoOfCounter} from '../demo/demo.js';
+import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs, DemoOfCounter} from '../demo/demo-components.js';
 
 const demoClasses = {
     DemoOfButtons,

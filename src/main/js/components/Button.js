@@ -3,7 +3,7 @@
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
-const {Strings, Arrays} = mojo;
+const {Objects, Strings, Arrays, Seq, Reader} = mojo;
 
 const buttonView = {
     initView: domElem => {

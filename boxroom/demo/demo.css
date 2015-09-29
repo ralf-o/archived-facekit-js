@@ -1,0 +1,11 @@
+* {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.row {
+    margin-bottom: 10px;
+}
+
+#main-navigation li {
+    cursor: pointer;
+}

@@ -1,6 +1,5 @@
 'use strict';
 
-
 import Element from './Element';
 import DOMBuilder from './DOMBuilder';
 
@@ -30,22 +29,62 @@ export default class Component {
                 throw new Error('[Component.mount] Neither react nor deku are available as render engines');
             }
 
+            var uiKitToUse = null,
+                uiComponentToMount = null;
+
             if (component instanceof Element) {
                 if (dekuAvailable) {
-                    deku.render(deku.tree(component.toDeku()), domElement);
+                    uiKitToUse = 'deku';
+                    uiComponentToMount = component.toDeku();
                 } else if (reactAvailable) {
-                    React.render(component.toReact(), domElement);
+                    uiKitToUse = 'react';
+                    uiComponentToMount = component.toReact();
                 }
             } else if (reactAvailable && React.isValidElement(component)) {
-                React.render(component, domElement);
+                uiKitToUse = 'react';
+                uiComponentToMount = component;
             } else if (dekuAvailable && component.type && typeof component.type === 'object') {
-                deku.render(deku.tree(component), domElement);
+                uiKitToUse = 'deku';
+                uiComponentToMount = component;
             } else {
                 console.error('Invalid component:', component);
                 throw new TypeError("[Component.mount] First argument 'component' is not a valid component");
             }
 
+            if (uiKitToUse === 'deku') {
+                const mounting = deku.render(deku.tree(uiComponentToMount), domElement);
+
+                domElement.__unmountComponent = () => {
+                    mounting.remove();
+                    delete domElement.__unmount;
+                }
+            } else if (uiKitToUse === 'react') {
+                React.render(uiComponentToMount, domElement);
+
+                domElement.__unmountComponent = () => {
+                    React.unmountComponentAtNode(domElement);
+                    delete domElement.__unmount;
+                }
+            }
+
+
             ret = true;
+        }
+
+        return ret;
+    }
+
+    static unmount(target) {
+        var ret;
+
+        const domElement = typeof target === 'string'
+            ? document.querySelector(target)
+            : target;
+
+        if (!domElement || typeof domElement.__unmountComponent !== 'function') {
+            ret = false;
+        } else {
+            domElement.__unmountComponent();
         }
 
         return ret;
