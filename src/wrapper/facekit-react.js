@@ -1,10 +1,12 @@
 'use strict';
 
+import Component from '../main/js/base/Component';
 import Element from '../main/js/base/Element';
+import DOMBuilder from '../main/js/base/DOMBuilder';
 
 window.facekit = window.facekit || {
     base: {
-        Element: Element
+        Component, Element, DOMBuilder
     }
 };
 
@@ -32,6 +34,15 @@ import FkTab from '../main/js/components/Tab';
 facekit.react.Tab = FkTab.toReact();
 
 
+window.demo = {
+    react: {}
+};
+
+import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs} from '../demo/demo.js';
+demo.react.DemoOfButtons = DemoOfButtons.toReact();
+demo.react.DemoOfButtonGroups = DemoOfButtonGroups.toReact();
+demo.react.DemoOfPagination = DemoOfPagination.toReact();
+demo.react.DemoOfTabs = DemoOfTabs.toReact();
 
 /*
 import FKButton from '../../../build/src/main/js/components/Button';

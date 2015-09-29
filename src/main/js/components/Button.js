@@ -75,7 +75,7 @@ const buttonView = {
 };
 
 
-export default Component.createClass({
+export const Button = Component.createClass({
     typeName: 'facekit/Button',
     view: buttonView,
     defaultProps: {
@@ -89,13 +89,7 @@ export default Component.createClass({
     }
 });
 
-
-/**
- *
- *
- */
-// This is just a fake class definition for ESDoc.
-class Button  {
-}
+export default Button;
+export const button = Button.createElement;
 
 

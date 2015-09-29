@@ -54,12 +54,14 @@ export default class Component {
                 + "Configuration parameter 'componentWillUnmount must be a function");
         }
 
-        const newClass = function (attributes = {}, ...children) {
+        const newClass = function (/*attributes = {}, ...children*/) {
+            /*
             if (this instanceof newClass) {
                 throw new Error('Components are not instantiable - do not use the new operator');
             }
 
             return new Element(newClass, attributes, children);
+            */
         };
 
         newClass.prototype = Object.create(Component.prototype);
@@ -128,6 +130,11 @@ export default class Component {
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
+
+        newClass.createElement = (attributes = {}, ...children) => {
+            return new Element(newClass, attributes, children);
+        };
+
        // newClass.getComponentDidMountHandler = () => componentDidMount || null;
        // newClass.getComponentWillUnmountHandler = () => componentWillUnmount || null;
 

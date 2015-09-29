@@ -47,16 +47,11 @@ const propTypes = {
     totalItemCount: React.PropTypes.number
 };
 
-export default Component.createClass({
+export const PaginationInfo = Component.createClass({
     typeName: 'facekit/PaginationInfo',
     view: view,
     defaultProps: defaultProps
 });
 
-/**
- *
- *
- */
-// This is just a fake class definition for ESDoc.
-class PaginationInfo      {
-}
+export default PaginationInfo;
+export const paginationInfo = PaginationInfo.createElement;

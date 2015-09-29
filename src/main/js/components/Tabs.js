@@ -71,7 +71,7 @@ const tabsView = {
     }
 };
 
-const Tabs = Component.createClass({
+export const Tabs = Component.createClass({
     typeName: 'facekit/Tabs',
     view: tabsView,
     defaultProps: {
@@ -84,5 +84,6 @@ const Tabs = Component.createClass({
 });
 
 export default Tabs;
+export const tabs = Tabs.createElement;
 
 

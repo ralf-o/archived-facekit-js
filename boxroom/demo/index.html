@@ -52,8 +52,11 @@ var Strings = mojo.Strings,
     Reader = mojo.Reader,
     Seq = mojo.Seq;
 
-var {Element} = facekit.base;
+var {Component, DOMBuilder, Element} = facekit.base;
 const {Button, ButtonGroup, Counter, PaginationInfo, Pager, Tabs, Tab} = facekit.react;
+</script>
+
+<script type="text/jsx;harmony=true">
 
 //const widget = <Button text="Juhu" onClick={() => alert('juhu')}/>;
 //const widget = <ButtonGroup><Button onClick={() => {alert('juhu')}} text="Button-1"/><Button text="Button-2"/></ButtonGroup>;
@@ -67,7 +70,28 @@ const
     exampleIcons = ['fa-calendar', 'fa-twitter', 'glyphicon-home', 'glyphicon-print'],
     iconPositions = ['left', 'top', 'right', 'bottom'];
 
-var widget = (
+
+
+
+
+const widget = (
+    <Tabs>
+        <Tab caption="Buttons">
+            <demo.react.DemoOfButtons/>
+        </Tab>
+        <Tab caption="Button Groups">
+            <demo.react.DemoOfButtonGroups/>
+        </Tab>
+        <Tab caption="Pagination">
+            <demo.react.DemoOfPagination/>
+        </Tab>
+        <Tab caption="Tabs">
+            <demo.react.DemoOfTabs/>
+        </Tab>
+    </Tabs>
+);
+
+var widget2 = (
     <Tabs tabStyle="default" tabPosition="top">
         <Tab caption="Buttons">
             <div className="container-fluid">

@@ -2,7 +2,7 @@
 
 import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
-import Button from './Button'
+import {Button} from './Button'
 
 const buttonGroupView = html => (props, children) => {
     const
@@ -18,7 +18,7 @@ const buttonGroupView = html => (props, children) => {
     );
 };
 
-export default Component.createClass({
+export const ButtonGroup = Component.createClass({
     typeName: "facekit/ButtonGroup",
     view: buttonGroupView,
     defaultProps: {
@@ -28,11 +28,5 @@ export default Component.createClass({
     className: ''
 });
 
-/**
- *
- *
- */
-// This is just a fake class definition for ESDoc.
-class ButtonGroup  {
-}
-
+export default ButtonGroup;
+export const buttonGroup = ButtonGroup.createElement;
