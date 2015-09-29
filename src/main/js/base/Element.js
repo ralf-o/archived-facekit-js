@@ -54,16 +54,35 @@ export default class Element {
     toDeku() {
         var ret;
 
-        const props = Objects.shallowCopy(this.__props);
-
-        if (props && props.className) {
-            props['class'] = props.className;
-            delete props.className;
-        }
+        const props = Objects.shallowCopy(this.__props instanceof Reader ? this.__props.__data : this.__props); // TODO
 
         const children = Seq.from(this.__children).map(child => child && child.toDeku ? child.toDeku() : child).toArray(); // TODO
 
         if (typeof this.__tag === 'string') {
+            if (props) {
+                if (props.className) {
+                    props['class'] = props.className;
+                    delete props.className;
+                }
+
+                if (props.style && typeof props.style === 'object') {
+                    const tokens = [];
+
+                    for (let propName of Object.getOwnPropertyNames(props.style)) {
+                        if (tokens.length > 0) {
+                            tokens.push(', ');
+                        }
+
+                        tokens.push(propName);
+                        tokens.push(": ");
+                        tokens.push(Objects.asString(props.style[propName]));
+                        tokens.push("");
+                    }
+
+                    props.style = tokens.join('');
+                }
+            }
+
             ret = {
                 type: this.__tag,
                 children: children,

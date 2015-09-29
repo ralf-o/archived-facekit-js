@@ -14,11 +14,11 @@ window.facekit = window.facekit || {
 
 import FkButton from '../main/js/components/Button';
 import FkButtonGroup from '../main/js/components/ButtonGroup';
-import FkCounter from '../main/js/components/Counter';
 import FkPaginationInfo from '../main/js/components/PaginationInfo';
 import FkPager from '../main/js/components/Pager';
 import FkTabs from '../main/js/components/Tabs';
 import FkTab from '../main/js/components/Tab';
+import FkCounter from '../main/js/components/Counter';
 
 const componentClasses = {
     Button: FkButton,
@@ -26,7 +26,8 @@ const componentClasses = {
     PaginationInfo: FkPaginationInfo,
     Pager: FkPager,
     Tabs: FkTabs,
-    Tab: FkTab
+    Tab: FkTab,
+    Counter: FkCounter
 };
 
 for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {

@@ -12,6 +12,45 @@ Array.from = (items) => Seq.from(items).toArray(); // TODO - get rid of this
  * The base component class.
  */
 export default class Component {
+    static mount(component, target) {
+        var ret;
+
+        const domElement = typeof target === 'string'
+            ? document.querySelector(target)
+            : target;
+
+        if (!domElement) {
+            ret = false;
+        } else {
+            const
+                dekuAvailable = typeof deku === 'object' && deku && typeof deku.render === 'function',
+                reactAvailable = typeof React === 'object' && React && typeof React.render === 'function';
+
+            if (!dekuAvailable && !reactAvailable) {
+                throw new Error('[Component.mount] Neither react nor deku are available as render engines');
+            }
+
+            if (component instanceof Element) {
+                if (dekuAvailable) {
+                    deku.render(deku.tree(component.toDeku()), domElement);
+                } else if (reactAvailable) {
+                    React.render(component.toReact(), domElement);
+                }
+            } else if (reactAvailable && React.isValidElement(component)) {
+                React.render(component, domElement);
+            } else if (dekuAvailable && component.type && typeof component.type === 'object') {
+                deku.render(deku.tree(component), domElement);
+            } else {
+                console.error('Invalid component:', component);
+                throw new TypeError("[Component.mount] First argument 'component' is not a valid component");
+            }
+
+            ret = true;
+        }
+
+        return ret;
+    }
+
     static createClass(config) {
         if (config === null || typeof config !== 'object') {
             throw new TypeError("[Component.createClass] First argument 'config' must be an object");
@@ -169,8 +208,7 @@ class ReactComponent extends React.Component {
             stateController = createStateController(
                     componentClass,
                     () => this.state.data,
-                    state => this.setState({data: state}),
-                    stateTransitions);
+                    state => this.setState({data: state}));
 
         return view.renderView(DOMBuilder.getDefault(), stateController)(Reader.from(this.props), this.props.children).toReact();
     }
@@ -217,13 +255,15 @@ function toReactComponentClass(componentClass) {
 function toDekuComponentClass(componentClass) {
     const ret = {
         initialState () {
-            return {data: new Reader(componentClass.getInitialState())};
+            return {data: componentClass.getInitialState()};
         },
 
-        render ({props, state}) {
-            const view = componentClass.getView();
+        render ({props, state}, setState) {
+            const
+                view = componentClass.getView(),
+                stateCtrl = createStateController(componentClass, () => state.data, state => setState({data: state}));
 
-            return view.renderView(DOMBuilder.getDefault(), state.data)(Reader.from(props), props.children).toDeku();
+            return view.renderView(DOMBuilder.getDefault(), stateCtrl)(Reader.from(props), props.children).toDeku();
         },
 
         afterUpdate (component) {
@@ -246,8 +286,10 @@ function toDekuComponentClass(componentClass) {
     return ret;
 }
 
-function createStateController(componentClass, getState, setState, stateTransitions) {
-    const ret = {};
+function createStateController(componentClass, getState, setState) {
+    const
+        ret = {},
+        stateTransitions = componentClass.getStateTransitions();
 
     if (stateTransitions) {
         for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
