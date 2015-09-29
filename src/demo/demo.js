@@ -6,6 +6,7 @@ import {buttonGroup} from '../main/js/components/ButtonGroup';
 import {pager} from '../main/js/components/Pager';
 import {tabs} from '../main/js/components/Tabs';
 import {tab} from '../main/js/components/Tab';
+import {counter} from '../main/js/components/Counter';
 
 const
     {Seq} = mojo;
@@ -219,5 +220,12 @@ export const DemoOfTabs = Component.createClass({
                 )
             )
         )
+    )
+});
+
+export const DemoOfCounter = Component.createClass({
+    typeName: 'DemoOfCounter',
+    view: html => props => (
+        counter({label: 'My Counter'})
     )
 });

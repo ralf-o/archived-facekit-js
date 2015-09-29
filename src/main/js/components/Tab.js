@@ -4,9 +4,9 @@ import Component from '../base/Component';
 import ComponentHelper from '../helpers/ComponentHelper';
 
 export const Tab = Component.createClass({
-    typeName: 'facekit/Tabs.Tab',
+    typeName: 'facekit/Tab',
     view: html => (props, children) => {
-        return html.div({}, ...children);
+        return html.div({className: 'fk-tab'}, ...children);
     }
 });
 

@@ -30,19 +30,26 @@ const componentClasses = {
 };
 
 for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
-    let componentClass = componentClasses[componentClassName];
+    const
+        componentClass = componentClasses[componentClassName],
+        componentFunction = componentClass.createElement,
+        componentFunctionName = componentClassName.charAt(0).toLowerCase() + componentClassName.slice(1);
+
     facekit.react[componentClassName] = componentClass.toReact();
+    facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).toReact();
     facekit.deku[componentClassName] = componentClass.toDeku();
+    facekit.deku[componentFunctionName] = (...args) => componentClass.createElement(...args).toDeku();
 }
 
 
-import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs} from '../demo/demo.js';
+import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs, DemoOfCounter} from '../demo/demo.js';
 
 const demoClasses = {
     DemoOfButtons,
     DemoOfButtonGroups,
     DemoOfPagination,
-    DemoOfTabs
+    DemoOfTabs,
+    DemoOfCounter
 }
 
 window.demo = {
@@ -51,9 +58,14 @@ window.demo = {
 };
 
 for (let demoClassName of Object.getOwnPropertyNames(demoClasses)) {
-    let demoClass = demoClasses[demoClassName];
+     const
+        demoClass = demoClasses[demoClassName],
+        demoFunctionName = demoClassName.charAt(0).toLowerCase() + demoClassName.slice(1);
+
      demo.react[demoClassName] = demoClass.toReact();
+     demo.react[demoFunctionName] = () => demoClass.createElement({}, []).toReact();
      demo.deku[demoClassName] = demoClass.toDeku();
+     demo.deku[demoFunctionName] = () => demoClass.createElement({}, []).toDeku();
 }
 
 

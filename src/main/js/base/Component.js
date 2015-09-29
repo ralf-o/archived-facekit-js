@@ -54,14 +54,8 @@ export default class Component {
                 + "Configuration parameter 'componentWillUnmount must be a function");
         }
 
-        const newClass = function (/*attributes = {}, ...children*/) {
-            /*
-            if (this instanceof newClass) {
-                throw new Error('Components are not instantiable - do not use the new operator');
-            }
-
-            return new Element(newClass, attributes, children);
-            */
+        const newClass = function () {
+            throw new Error('Components are not instantiable');
         };
 
         newClass.prototype = Object.create(Component.prototype);
@@ -106,9 +100,9 @@ export default class Component {
                 : Seq.from(children)
                     .filter(child => child !== undefined && child !== null && child !== false)
                     .map(child => {
-                        return child.type && child.type.__originalComponentClass
+                        return child.type && typeof child.type === 'function' && child.type.__originalComponentClass
                                 ? new Element(child.type.__originalComponentClass, Reader.from(child.props), child.props.children)
-                                : child; // TODO!!!
+                                : (child.type && child.type.__originalComponentClass ? new Element(child.type.__originalComponentClass, Reader.from(child.attributes), child.children) : child); // TODO!!!
 
                         //if (allowedChildrenTypes.length === 0) {
                         //    throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
@@ -164,7 +158,6 @@ export default class Component {
 class ReactComponent extends React.Component {
     constructor() {
         super();
-        this.state = {data: {}};
         this.__cleanupCallback = null;
     }
 
@@ -172,38 +165,14 @@ class ReactComponent extends React.Component {
         const
             componentClass = this.__originalComponentClass,
             stateTransitions = componentClass.getStateTransitions(),
-            view = componentClass.getView();
+            view = componentClass.getView(),
+            stateController = createStateController(
+                    componentClass,
+                    () => this.state.data,
+                    state => this.setState({data: state}),
+                    stateTransitions);
 
-        const state = {};
-
-        if (stateTransitions) {
-            for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
-                const transition = stateTransitions[transitionName];
-
-                state[transitionName] = (...args) => {
-                    const
-                        oldState = this.state.data,
-                        newState = Objects.transform(oldState, transition(...args));
-
-                    printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
-
-                    this.setState({data: newState});
-                }
-            }
-        }
-
-       // TODO !!!!
-        state.get = key => {
-            const state = this.state.data;
-
-            return (state instanceof Reader
-                        || typeof Immutable === ' object' && Immutable && state instanceof Immutable.Collection)
-
-                   ? state.get(key)
-                   : state[key];
-        }
-
-        return view.renderView(DOMBuilder.getDefault(), state)(Reader.from(this.props), this.props.children).toReact();
+        return view.renderView(DOMBuilder.getDefault(), stateController)(Reader.from(this.props), this.props.children).toReact();
     }
 
     componentDidMount() {
@@ -246,29 +215,69 @@ function toReactComponentClass(componentClass) {
 }
 
 function toDekuComponentClass(componentClass) {
-    return {
+    const ret = {
         initialState () {
-            return {
-            }
+            return {data: new Reader(componentClass.getInitialState())};
         },
 
         render ({props, state}) {
             const view = componentClass.getView();
-                state = {};
 
-            return view.renderView(DOMBuilder.getDefault(), state)(Reader.from(props), props.children).toDeku();
+            return view.renderView(DOMBuilder.getDefault(), state.data)(Reader.from(props), props.children).toDeku();
         },
 
         afterUpdate (component) {
         },
 
-        afterMount (component, el, setState) {
+        afterMount (component, domElement, setState) {
+            const view = componentClass.getView();
+            component.__cleanupCallback = view.initView(domElement);
         },
 
         beforeUnmount (component) {
+            if (component.__cleanupCallback === 'function') {
+                component.__cleanupCallback();
+                delete component.__cleanupCallback;
+            }
+        }
+    };
+
+    ret.__originalComponentClass = componentClass;
+    return ret;
+}
+
+function createStateController(componentClass, getState, setState, stateTransitions) {
+    const ret = {};
+
+    if (stateTransitions) {
+        for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
+            const transition = stateTransitions[transitionName];
+
+            ret[transitionName] = (...args) => {
+                const
+                    oldState = getState(),
+                    newState = Objects.transform(oldState, transition(...args));
+
+                printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
+                setState(newState);
+            }
         }
     }
+
+   // TODO !!!!
+    ret.get = key => {
+        const state = getState();
+
+        return (state instanceof Reader
+                    || typeof Immutable === ' object' && Immutable && state instanceof Immutable.Collection)
+
+               ? state.get(key)
+               : state[key];
+    }
+
+    return ret;
 }
+
 
 function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {
     const

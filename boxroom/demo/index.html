@@ -92,21 +92,45 @@ const widgetReact = (
         <react.Tab caption="Tabs">
            <demo.react.DemoOfTabs/>
         </react.Tab>
+        <react.Tab caption="Counter">
+           <demo.react.DemoOfCounter/>
+        </react.Tab>
     </react.Tabs>
 );
 
 const d = DOMBuilder.DEKU;
 
 
-const widgetDeku = d.div({},
-    [d.createElement('button', {}, ['xxx'])]
+const widgetDeku = (
+    dek.tabs(
+        {activeTab: 0},
+        dek.tab(
+            {caption: 'Buttons'},
+            demo.deku.demoOfButtons()
+        ),
+        dek.tab(
+            {caption: 'Button Groups'},
+            demo.deku.demoOfButtonGroups()
+        ),
+        dek.tab(
+            {caption: 'Pagination'},
+            demo.deku.demoOfPagination()
+        ),
+        dek.tab(
+            {caption: 'Tabs'},
+            demo.deku.demoOfTabs()
+        ),
+        dek.tab(
+            {caption: 'Counter'},
+            demo.deku.demoOfCounter()
+        )
+    )
 );
 
 
-//deku.render(deku.tree(widgetDeku), document.getElementById('content'));
-
 React.render(widgetReact, document.getElementById('content'));
 
+//deku.render(deku.tree(widgetDeku), document.getElementById('content'));
 
 </script>
 </body>
