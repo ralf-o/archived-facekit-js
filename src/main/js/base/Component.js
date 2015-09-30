@@ -90,6 +90,20 @@ export default class Component {
         return ret;
     }
 
+    static registerWebComponent(componentClass, elementName, doc = null) {
+        const document = (doc ? doc : window.document);
+
+        if (typeof document.registerElement !== 'function') {
+            throw new Error('Browser to old to support web components');
+        }
+
+        const webComponentClass = true || componentClass.prototype instanceof Component
+            ? toWebComponentClass(componentClass)
+            : componentClass; // TODO!!!
+
+        document.registerElement(elementName, webComponentClass);
+    }
+
     static createClass(config) {
         if (config === null || typeof config !== 'object') {
             throw new TypeError("[Component.createClass] First argument 'config' must be an object");
@@ -293,11 +307,13 @@ function toReactComponentClass(componentClass) {
 
 function toDekuComponentClass(componentClass) {
     const ret = {
-        initialState () {
+        defaultProps: componentClass.getDefaultProps(),
+
+        initialState() {
             return {data: componentClass.getInitialState()};
         },
 
-        render ({props, state}, setState) {
+        render({props, state}, setState) {
             const
                 view = componentClass.getView(),
                 stateCtrl = createStateController(componentClass, () => state.data, state => setState({data: state}));
@@ -305,15 +321,15 @@ function toDekuComponentClass(componentClass) {
             return view.renderView(DOMBuilder.getDefault(), stateCtrl)(Reader.from(props), props.children).toDeku();
         },
 
-        afterUpdate (component) {
+        afterUpdate(component) {
         },
 
-        afterMount (component, domElement, setState) {
+        afterMount(component, domElement, setState) {
             const view = componentClass.getView();
             component.__cleanupCallback = view.initView(domElement);
         },
 
-        beforeUnmount (component) {
+        beforeUnmount(component) {
             if (component.__cleanupCallback === 'function') {
                 component.__cleanupCallback();
                 delete component.__cleanupCallback;
@@ -323,6 +339,34 @@ function toDekuComponentClass(componentClass) {
 
     ret.__originalComponentClass = componentClass;
     return ret;
+}
+
+function toWebComponentClass(componentClass) {
+    const
+        elementPrototype = Object.create(HTMLElement.prototype),
+        constructor = () => {};
+
+    constructor.prototype = elementPrototype;
+console.log(111,componentClass.getTypeName && componentClass.getTypeName())
+    elementPrototype.createdCallback = function ()  {
+        const props = {};
+
+        for (let i = 0; i < this.attributes.length; ++i) {
+            const
+                attribute = this.attributes[i],
+                key = attribute.name,
+                value = attribute.value;
+
+            props[key] = value;
+        }
+
+        // TODO - handle children => this.innerHTML | also support react web components | bad implementation
+        Component.mount(componentClass.type ? componentClass : DOMBuilder.DEKU.createElement(componentClass, props), this);
+
+//        Component.mount(React.render(React.createElement(componentClass.toReact(), props), this));
+    }
+
+    return constructor;
 }
 
 function createStateController(componentClass, getState, setState) {

@@ -132,7 +132,8 @@ export const DemoOfButtons = Component.createClass({
                     {className: 'col-md-2'},
                     'Menu buttons:'
                 ),
-                button({className: 'col-md-3', text: 'Menu button', menu: [{text: 'Item 1'}]})
+                button({className: 'col-md-2', type: 'info', text: 'Dropdown button', menu: [{text: 'Item 1'}]}),
+                button({className: 'col-md-2', text: 'Split button', onClick: () => alert('Juhuuu'), menu: [{text: 'Item 1'}]})
             )
         )
     )

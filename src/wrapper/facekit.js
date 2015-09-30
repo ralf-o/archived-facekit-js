@@ -36,6 +36,16 @@ for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
         componentFunction = componentClass.createElement,
         componentFunctionName = componentClassName.charAt(0).toLowerCase() + componentClassName.slice(1);
 
+
+    if (typeof document.registerElement === 'function') {
+        const elementName = 'fk-' + componentFunctionName.replace(/[^A-Z]([A-Z])(?:[^A-Z]|$)|([A-Z]+)([A-Z])/g,
+                (a, b ,c) => !c
+                        ?  a.charAt(0) + '-' + b.toLowerCase() + a.charAt(2)
+                        : ('-' + c + '-' + d).toLowerCase());
+
+          Component.registerWebComponent(componentClass, elementName);
+    }
+
     facekit.react[componentClassName] = componentClass.toReact();
     facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).toReact();
     facekit.deku[componentClassName] = componentClass.toDeku();

@@ -47,9 +47,8 @@ DOMBuilder.REACT = new DOMBuilder({
 */
 
 
-
 DOMBuilder.DEKU = new DOMBuilder({
-    createElement: function createElement (tag, attributes, children) {
+    createElement: function createElement (tag, props, children) {
         var ret;
 
         if (tag.prototype instanceof Component) {
@@ -61,7 +60,7 @@ DOMBuilder.DEKU = new DOMBuilder({
         } else {
             ret = {
                 type: tag,
-                attributes: attributes,
+                attributes: props,
                 children: children
             }
         }

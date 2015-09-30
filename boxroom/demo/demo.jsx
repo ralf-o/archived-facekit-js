@@ -6,9 +6,11 @@ const
     Component = facekit.base.Component,
     d = facekit.base.DOMBuilder.DEKU,
     dek = facekit.deku,
-    react = facekit.react;
+    react = facekit.react,
+    dekuDemo = getDekuDemo();
 
-Component.mount(getDekuDemo(), contentContainer);
+Component.mount(dekuDemo, contentContainer);
+facekit.base.Component.registerWebComponent(dekuDemo, 'fk-demo');
 
 $uiSwitchers.each((idx, elem) => {
         const
@@ -30,6 +32,9 @@ $uiSwitchers.each((idx, elem) => {
                     break;
 
                  case 'web-components':
+                    $(contentContainer)
+                        .empty()
+                        .append('<fk-demo/>');
                     break;
 
                 case 'angular':
