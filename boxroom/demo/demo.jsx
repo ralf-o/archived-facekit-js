@@ -10,7 +10,10 @@ const
     dekuDemo = getDekuDemo();
 
 Component.mount(dekuDemo, contentContainer);
-facekit.base.Component.registerWebComponent(dekuDemo, 'fk-demo');
+
+if (typeof document.registerElement === 'function') {
+    facekit.base.Component.registerWebComponent(dekuDemo, 'fk-demo');
+}
 
 $uiSwitchers.each((idx, elem) => {
         const
@@ -21,6 +24,7 @@ $uiSwitchers.each((idx, elem) => {
             $uiSwitchers.removeClass('active');
             $(this).addClass('active');
             Component.unmount(contentContainer);
+            $(contentContainer).empty();
 
             switch (name) {
                 case 'deku':
@@ -33,11 +37,19 @@ $uiSwitchers.each((idx, elem) => {
 
                  case 'web-components':
                     $(contentContainer)
-                        .empty()
-                        .append('<fk-demo/>');
+                        .append(document.registerElement ? '<fk-demo/>' : 'Your browser does not support web components :-(');
                     break;
 
                 case 'angular':
+                    var template =
+                            `
+                            <div ng-app>
+                                <demo-of-buttons/>
+                            </div>
+                            `;
+
+                    $(contentContainer).html(template);
+                    angular.bootstrap(contentContainer.children[0], ['facekit']);
                     break;
             }
 

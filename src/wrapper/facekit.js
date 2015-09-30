@@ -30,6 +30,10 @@ const componentClasses = {
     Counter: FkCounter
 };
 
+const angularModule = typeof angular === 'object' && angular
+    ? angular.module('facekit', [])
+    : null;
+
 for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
     const
         componentClass = componentClasses[componentClassName],
@@ -50,8 +54,11 @@ for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
     facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).toReact();
     facekit.deku[componentClassName] = componentClass.toDeku();
     facekit.deku[componentFunctionName] = (...args) => componentClass.createElement(...args).toDeku();
-}
 
+    if (angularModule) {
+        angularModule.directive('fk' + componentClassName, () => componentClass.toAngular());
+    }
+}
 
 import {DemoOfButtons, DemoOfButtonGroups, DemoOfPagination, DemoOfTabs, DemoOfCounter} from '../demo/demo-components.js';
 
@@ -77,6 +84,10 @@ for (let demoClassName of Object.getOwnPropertyNames(demoClasses)) {
      demo.react[demoFunctionName] = () => demoClass.createElement({}, []).toReact();
      demo.deku[demoClassName] = demoClass.toDeku();
      demo.deku[demoFunctionName] = () => demoClass.createElement({}, []).toDeku();
+
+     if (angularModule) {console.log(demoFunctionName)
+        angularModule.directive(demoFunctionName, () => demoClass.toAngular());
+     }
 }
 
 

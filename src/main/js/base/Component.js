@@ -32,7 +32,10 @@ export default class Component {
             var uiKitToUse = null,
                 uiComponentToMount = null;
 
-            if (component instanceof Element) {
+            if (typeof component === 'function' && component.prototype instanceof Component) {
+                uiKitToUse = 'deku';
+                uiComponentToMount = new Element(component, {}, []).toDeku();
+            } else if (component instanceof Element) {
                 if (dekuAvailable) {
                     uiKitToUse = 'deku';
                     uiComponentToMount = component.toDeku();
@@ -240,6 +243,17 @@ export default class Component {
             return newClass.__dekuClass;
         }
 
+        newClass.toAngular = () => ({
+            restrict: 'E',
+            replace: true,
+            transclude: false,
+            compile: function (element, attrs) {
+                const newElement = document.createElement('div');
+                Component.mount(new Element(newClass, attrs), newElement);
+                element.replaceWith(newElement);
+            }
+        });
+
         return newClass;
     }
 }
@@ -347,7 +361,7 @@ function toWebComponentClass(componentClass) {
         constructor = () => {};
 
     constructor.prototype = elementPrototype;
-console.log(111,componentClass.getTypeName && componentClass.getTypeName())
+
     elementPrototype.createdCallback = function ()  {
         const props = {};
 
