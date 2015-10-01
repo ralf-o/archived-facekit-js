@@ -14,6 +14,7 @@ window.facekit = window.facekit || {
 
 import FkButton from '../main/js/components/Button';
 import FkButtonGroup from '../main/js/components/ButtonGroup';
+import FkPagination from '../main/js/components/Pagination';
 import FkPaginationInfo from '../main/js/components/PaginationInfo';
 import FkPager from '../main/js/components/Pager';
 import FkTabs from '../main/js/components/Tabs';
@@ -23,6 +24,7 @@ import FkCounter from '../main/js/components/Counter';
 const componentClasses = {
     Button: FkButton,
     ButtonGroup: FkButtonGroup,
+    Pagination: FkPagination,
     PaginationInfo: FkPaginationInfo,
     Pager: FkPager,
     Tabs: FkTabs,

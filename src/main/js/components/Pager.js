@@ -23,7 +23,7 @@ const pagerView = (html, state, ctx) => (props, children) => {
 
     return (
         html.div(
-            {className: 'fk-pager'},
+            {className: 'fk-pager ' + props.get('className')},
             buttonGroup({},
                 showFirstButton && button({
                     text: (showButtonTexts ? 'First' : ''),

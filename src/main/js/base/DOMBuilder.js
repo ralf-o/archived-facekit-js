@@ -3,7 +3,7 @@
 import Component from './Component';
 import Element from './Element';
 
-const {Seq} = mojo;
+const {Objects, Seq} = mojo;
 
 export default class DOMBuilder {
     /**
@@ -11,7 +11,14 @@ export default class DOMBuilder {
      *   The configuration of the DOMBuilder
      */
     constructor(config) {
-        this.createElement = config.createElement;
+        this.createElement = (tag, props, ...children) => {
+            const childrenSeq = Seq.from(children).flatMap(child =>
+                Seq.isNonStringSeqable(child)
+                    ? Seq.from(child)
+                    : (Objects.isNothing(child) || child === false ? Seq.empty() : Seq.of(child)));
+
+            return config.createElement(tag, props, childrenSeq.toArray());
+        }
     }
 
     static getDefault() {
@@ -64,7 +71,7 @@ DOMBuilder.DEKU = new DOMBuilder({
                 children: children
             }
         }
-console.log(ret)
+
         return ret;
     }
 });
@@ -211,6 +218,6 @@ const tagNames = [
 
 for (let tagName of tagNames) {
     DOMBuilder.prototype[tagName] = function (props, ...children) {
-        return this.createElement(tagName, props, children);
+        return this.createElement(tagName, props, ...children);
     };
 }

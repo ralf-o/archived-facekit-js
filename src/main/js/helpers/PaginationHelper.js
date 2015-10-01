@@ -26,4 +26,29 @@ export default class PaginationHelper {
 
         return ret;
     }
+
+    static determineVisiblePaginationButtons(pageIndex, pageCount, maxPageButtonCount) {
+        const
+            pageNumber = pageIndex + 1,
+            pageButtonCount = Math.min(maxPageButtonCount, pageCount);
+
+        var firstPageNumber,
+            lastPageNumber;
+
+        if (pageButtonCount === pageCount || pageNumber <= Math.round(pageButtonCount / 2)) {
+            firstPageNumber = 2;
+        } else if (pageCount - pageNumber < Math.round(pageButtonCount / 2)) {
+            firstPageNumber = pageCount - pageButtonCount + 2;
+        } else {
+            firstPageNumber = pageNumber - Math.round(pageButtonCount / 2) + 2;
+        }
+
+        lastPageNumber = firstPageNumber + pageButtonCount - 3;
+
+        return {
+            pageButtonCount: pageButtonCount,
+            firstButtonIndex: firstPageNumber - 1,
+            lastButtonIndex: lastPageNumber - 1
+        };
+    }
 }

@@ -13,7 +13,7 @@ const buttonGroupView = html => (props, children) => {
                 props.get('className'));
 
     return (
-        html.section(
+        html.div(
             {className: className, role: 'group'}, ...children)
     );
 };

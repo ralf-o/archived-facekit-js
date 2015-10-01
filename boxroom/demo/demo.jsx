@@ -60,7 +60,7 @@ $uiSwitchers.each((idx, elem) => {
 function getDekuDemo() {
     return (
         dek.tabs(
-            {activeTab: 0},
+            {activeTab: 2},
             dek.tab(
                 {caption: 'Buttons'},
                 demo.deku.demoOfButtons()

@@ -3,6 +3,7 @@
 import Component from '../main/js/base/Component';
 import {button} from '../main/js/components/Button';
 import {buttonGroup} from '../main/js/components/ButtonGroup';
+import {pagination} from '../main/js/components/Pagination';
 import {pager} from '../main/js/components/Pager';
 import {tabs} from '../main/js/components/Tabs';
 import {tab} from '../main/js/components/Tab';
@@ -176,6 +177,12 @@ export const DemoOfPagination = Component.createClass({
             {className: 'container-fluid'},
                 html.div(
                     {className: 'row'},
+                    pagination({
+                        className: 'col-md-3',
+                        pageIndex: 10,
+                        pageSize: 25,
+                        totalItemCount: 255
+                    }),
                     pager({
                         className: 'col-md-3',
                         pageIndex: 2,
