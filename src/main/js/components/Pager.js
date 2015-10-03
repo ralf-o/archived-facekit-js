@@ -30,14 +30,16 @@ const pagerView = (html, state, ctx) => (props, children) => {
                     icon: 'fa-angle-double-left',
                     className: 'fk-pager-button-first',
                     tooltip: (showButtonTexts ? '' : 'First'),
-                    disabled: disabled || metrics.isFirstPage
+                    disabled: disabled || metrics.isFirstPage,
+                    onClick: evt => props.get('onChange')({pageIndex: 0})
                 }),
                 showPreviousButton && button({
                     text: (showButtonTexts ? 'Previous' : ''),
                     icon: 'fa-angle-left',
                     className: 'fk-pager-button-previous',
                     tooltip: (showButtonTexts ? '' : 'Previous'),
-                    disabled: disabled || metrics.isFirstPage
+                    disabled: disabled || metrics.isFirstPage,
+                    onClick: evt => props.get('onChange')({pageIndex: metrics.pageIndex - 1})
                 })),
              (type !== 'randomAccess'
                             ? paginationInfo(
@@ -53,14 +55,16 @@ const pagerView = (html, state, ctx) => (props, children) => {
                     icon: 'fa-angle-right',
                     className: 'fk-pager-button-next',
                     tooltip: (showButtonTexts ? '' : 'Next'),
-                    disabled: disabled || metrics.isLastPage
+                    disabled: disabled || metrics.isLastPage,
+                    onClick: evt => props.get('onChange')({pageIndex: metrics.pageIndex + 1})
                 }),
                 showLastButton && button({
                     text: (showButtonTexts ? 'Last' : ''),
                     icon: 'fa-angle-double-right',
                     className: 'fk-pager-button-last',
                     tooltip: (showButtonTexts ? '' : 'Last'),
-                    disabled: disabled || metrics.isLastPage
+                    disabled: disabled || metrics.isLastPage,
+                    onClick: evt => props.get('onChange')({pageIndex: metrics.pageCount - 1})
                 }))
         )
     );
@@ -70,7 +74,8 @@ const pagerDefaultProps = {
     showFirstButton: true,
     showNextButton: true,
     showPreviousButton: true,
-    showLastButton: true
+    showLastButton: true,
+    onChange: evt => {}
 }
 
 export const Pager = Component.createClass({

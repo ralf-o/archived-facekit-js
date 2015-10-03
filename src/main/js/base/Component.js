@@ -2,15 +2,27 @@
 
 import Element from './Element';
 import DOMBuilder from './DOMBuilder';
+import PropsReader from './PropsReader';
 
 const {Objects, Seq, Reader} = mojo;
 
 Array.from = (items) => Seq.from(items).toArray(); // TODO - get rid of this
 
+const registeredComponentAdapters = {
+};
+
 /**
  * The base component class.
  */
 export default class Component {
+    static registerComponentAdapter(name, adapter) {
+        registeredComponentAdapters[name] = adapter;
+    }
+
+    static getComponentAdapter(name) {
+        return registeredComponentAdapters[name];
+    }
+
     static mount(component, target) {
         var ret;
 
@@ -34,11 +46,11 @@ export default class Component {
 
             if (typeof component === 'function' && component.prototype instanceof Component) {
                 uiKitToUse = 'deku';
-                uiComponentToMount = new Element(component, {}, []).toDeku();
+                uiComponentToMount = new Element(component, {}, []).convertTo('deku');
             } else if (component instanceof Element) {
                 if (dekuAvailable) {
                     uiKitToUse = 'deku';
-                    uiComponentToMount = component.toDeku();
+                    uiComponentToMount = component.convertTo('deku');
                 } else if (reactAvailable) {
                     uiKitToUse = 'react';
                     uiComponentToMount = component.toReact();
@@ -100,7 +112,7 @@ export default class Component {
             throw new Error('Browser to old to support web components');
         }
 
-        const webComponentClass = true || componentClass.prototype instanceof Component
+        const webComponentClass = true || componentClass.prototype instanceof Component // TODO
             ? toWebComponentClass(componentClass)
             : componentClass; // TODO!!!
 
@@ -113,7 +125,7 @@ export default class Component {
         }
 
         const {typeName, view, stateTransitions, initialState, defaultProps,
-                allowedChildrenTypes, componentDidMount, componentWillUnmount} = config;
+                allowedChildrenTypes, componentDidMount, componentWillUnmount, shouldComponentUpdate} = config;
 
         if (typeName === undefined || typeName === null) {
            throw new TypeError("[Component.createClass] No 'typeName' provided in configuration object");
@@ -146,7 +158,10 @@ export default class Component {
                 + "Configuration parameter 'componentDidMount must be a function");
         } else if (Objects.isSomething(componentWillUnmount) && typeof componentWillUnmount !== 'function') {
            throw new TypeError('[Component.createClass] '
-                + "Configuration parameter 'componentWillUnmount must be a function");
+                + "Configuration parameter 'componentWillUnmount' must be a function");
+        } else if (Objects.isSomething(shouldComponentUpdate) && typeof shouldComponentUpdate !== 'function') {
+           throw new TypeError('[Component.createClass] '
+                + "Configuration parameter 'shouldComponentUpdate' must be a function");
         }
 
         const newClass = function () {
@@ -196,8 +211,8 @@ export default class Component {
                     .filter(child => child !== undefined && child !== null && child !== false)
                     .map(child => {
                         return child.type && typeof child.type === 'function' && child.type.__originalComponentClass
-                                ? new Element(child.type.__originalComponentClass, Reader.from(child.props), child.props.children)
-                                : (child.type && child.type.__originalComponentClass ? new Element(child.type.__originalComponentClass, Reader.from(child.attributes), child.children) : child); // TODO!!!
+                                ? new Element(child.type.__originalComponentClass, PropsReader.from(child.props), child.props.children)
+                                : (child.type && child.type.__originalComponentClass ? new Element(child.type.__originalComponentClass, PropsReader.from(child.attributes), child.children) : child); // TODO!!!
 
                         //if (allowedChildrenTypes.length === 0) {
                         //    throw new TypeError("Components of type '${newClass.getTypeName()}' must not have children");
@@ -210,7 +225,7 @@ export default class Component {
 
 
 
-             return renderView(domBuilder, state)(Reader.from(props), allowedChildren);
+             return renderView(domBuilder, state)(PropsReader.from(props), allowedChildren);
         };
 
         newClass.getView = () => ({initView: initView, renderView: enhancedRenderView});
@@ -219,29 +234,24 @@ export default class Component {
         newClass.getStateTransitions = () => stateTransitions;
         newClass.getInitialState = () => initialState || {};
         newClass.getDefaultProps = () => defaultProps || {};
+        newClass.shouldComponentUpdate = (oldProps, newProps, oldState, newState) => {
+            const stateHasChanged = newState !== oldState;
+
+            return !shouldComponentUpdate
+                    ? true
+                    : stateHasChanged || shouldComponentUpdate(oldProps, newProps);
+        }
 
         newClass.createElement = (attributes = {}, ...children) => {
             return new Element(newClass, attributes, children);
         };
 
+        newClass.convertTo = (adapterName) => {
+            return registeredComponentAdapters[adapterName].convertComponentClass(newClass);
+        }
+
        // newClass.getComponentDidMountHandler = () => componentDidMount || null;
        // newClass.getComponentWillUnmountHandler = () => componentWillUnmount || null;
-
-        newClass.toReact = () => {
-            if (typeof newClass.__reactClass !== 'function') {
-                newClass.__reactClass = toReactComponentClass(newClass);
-            }
-
-            return newClass.__reactClass;
-        }
-
-        newClass.toDeku = ()  => {
-            if (typeof newClass.__dekuClass !== 'function') {
-               newClass.__dekuClass = toDekuComponentClass(newClass);
-            }
-
-            return newClass.__dekuClass;
-        }
 
         newClass.toAngular = () => ({
             restrict: 'E',
@@ -261,99 +271,6 @@ export default class Component {
 
 // ------------------------------------------------------------------
 
-class ReactComponent extends React.Component {
-    constructor() {
-        super();
-        this.__cleanupCallback = null;
-    }
-
-    render() {
-        const
-            componentClass = this.__originalComponentClass,
-            stateTransitions = componentClass.getStateTransitions(),
-            view = componentClass.getView(),
-            stateController = createStateController(
-                    componentClass,
-                    () => this.state.data,
-                    state => this.setState({data: state}));
-
-        return view.renderView(DOMBuilder.getDefault(), stateController)(Reader.from(this.props), this.props.children).toReact();
-    }
-
-    componentDidMount() {
-        const view = this.__originalComponentClass.getView();
-
-        this.__cleanupCallback = view.initView(React.findDOMNode(this));
-    }
-
-    componentWillUnmount() {
-        if (typeof this.__cleanupCallback === 'function') {
-            this.__cleanupCallback();
-            this.__cleanupCallback = null;
-        }
-    }
-}
-
-
-function toReactComponentClass(componentClass) {
-    if (!componentClass || !(componentClass.prototype instanceof Component)) {
-        throw new TypeError("[Component.toReact] First argument 'componentClass' is not really a component class");
-    }
-
-    const
-        typeName = componentClass.getTypeName(),
-        stateTransitions = componentClass.getStateTransitions(),
-        initialState = componentClass.getInitialState(),
-        defaultProps = componentClass.getDefaultProps();
-
-    const ret = function(...args) {
-        ReactComponent.call(this, ...args);
-        this.state = {data: this.__originalComponentClass.getInitialState()};
-    }
-
-    ret.prototype = new ReactComponent();
-    ret.defaultProps = componentClass.getDefaultProps();
-    ret.prototype.__originalComponentClass = componentClass;
-    ret.__originalComponentClass = componentClass;
-    ret.displayName = typeName.replace(/^(.*?)([A-Za-z0-9-_\.]+)$/, '$2');
-    return ret;
-}
-
-function toDekuComponentClass(componentClass) {
-    const ret = {
-        defaultProps: componentClass.getDefaultProps(),
-
-        initialState() {
-            return {data: componentClass.getInitialState()};
-        },
-
-        render({props, state}, setState) {
-            const
-                view = componentClass.getView(),
-                stateCtrl = createStateController(componentClass, () => state.data, state => setState({data: state}));
-
-            return view.renderView(DOMBuilder.getDefault(), stateCtrl)(Reader.from(props), props.children).toDeku();
-        },
-
-        afterUpdate(component) {
-        },
-
-        afterMount(component, domElement, setState) {
-            const view = componentClass.getView();
-            component.__cleanupCallback = view.initView(domElement);
-        },
-
-        beforeUnmount(component) {
-            if (component.__cleanupCallback === 'function') {
-                component.__cleanupCallback();
-                delete component.__cleanupCallback;
-            }
-        }
-    };
-
-    ret.__originalComponentClass = componentClass;
-    return ret;
-}
 
 function toWebComponentClass(componentClass) {
     const
@@ -375,7 +292,8 @@ function toWebComponentClass(componentClass) {
         }
 
         // TODO - handle children => this.innerHTML | also support react web components | bad implementation
-        Component.mount(componentClass.type ? componentClass : DOMBuilder.DEKU.createElement(componentClass, props), this);
+        //Component.mount(componentClass.type ? componentClass : DOMBuilder.DEKU.createElement(componentClass, props), this);
+        Component.mount(componentClass.type ? componentClass : React.createElement(componentClass, props), this);
 
 //        Component.mount(React.render(React.createElement(componentClass.toReact(), props), this));
     }
@@ -383,56 +301,3 @@ function toWebComponentClass(componentClass) {
     return constructor;
 }
 
-function createStateController(componentClass, getState, setState) {
-    const
-        ret = {},
-        stateTransitions = componentClass.getStateTransitions();
-
-    if (stateTransitions) {
-        for (let transitionName of Object.getOwnPropertyNames(stateTransitions)) {
-            const transition = stateTransitions[transitionName];
-
-            ret[transitionName] = (...args) => {
-                const
-                    oldState = getState(),
-                    newState = Objects.transform(oldState, transition(...args));
-
-                printStateTransitionDebugInfo(componentClass, oldState, newState, transitionName, args);
-                setState(newState);
-            }
-        }
-    }
-
-   // TODO !!!!
-    ret.get = key => {
-        const state = getState();
-
-        return (state instanceof Reader
-                    || typeof Immutable === ' object' && Immutable && state instanceof Immutable.Collection)
-
-               ? state.get(key)
-               : state[key];
-    }
-
-    return ret;
-}
-
-
-function printStateTransitionDebugInfo(componentClass, oldState, newState, transitionId, args) {
-    const
-        oldStateString = oldState instanceof Reader ? 'Reader: ' + JSON.stringify(oldState.__state) : oldState.toString(),
-        newStateString = newState instanceof Reader ? 'Reader: ' + JSON.stringify(newState.__state) : newState.toString();
-
-    console.log("\n=== COMPONENT STATE TRANSITION =======================\n");
-    console.log("--- component type ---------------------------------");
-    console.log(componentClass.getTypeName());
-    console.log("--- old state --------------------------------------");
-    console.log(oldStateString);
-    console.log("--- new state --------------------------------------");
-    console.log((newState === oldState ? '(no changes)' : newStateString));
-    console.log("--- transition -------------------------------------");
-    console.log(transitionId);
-    console.log("--- arguments --------------------------------------");
-    console.log(args.toString());
-    console.log("====================================================");
-}

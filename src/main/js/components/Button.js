@@ -86,6 +86,9 @@ export const Button = Component.createClass({
         size: 'default',
         iconPosition: 'left',
         menu: []
+    },
+    shouldComponentUpdate(oldProps, newProps) {
+        return oldProps.text != newProps.text;
     }
 });
 

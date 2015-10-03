@@ -172,26 +172,37 @@ export const DemoOfButtonGroups = Component.createClass({
 
 export const DemoOfPagination = Component.createClass({
     typeName: 'DemoOfPagination',
-    view: html => props => (
+    view: (html, state) => props => (
         html.div(
             {className: 'container-fluid'},
+                Seq.range(1, 10).map(_ =>
                 html.div(
                     {className: 'row'},
                     pagination({
                         className: 'col-md-3',
-                        pageIndex: 10,
-                        pageSize: 25,
-                        totalItemCount: 255
+                        pageIndex: state.get('pageIndex'),
+                        pageSize: state.get('pageSize'),
+                        totalItemCount: state.get('totalItemCount'),
+                        onChange: evt => state.moveToPage(evt.pageIndex)
                     }),
                     pager({
                         className: 'col-md-3',
-                        pageIndex: 2,
-                        pageSize: 25,
-                        totalItemCount: 255
+                        pageIndex: state.get('pageIndex'),
+                        pageSize: state.get('pageSize'),
+                        totalItemCount: state.get('totalItemCount'),
+                        onChange: evt => state.moveToPage(evt.pageIndex)
                     })
-                )
+                ))
             )
-    )
+    ),
+    initialState: {
+        pageIndex: 0,
+        pageSize: 25,
+        totalItemCount: 744
+    },
+    stateTransitions: {
+        moveToPage: pageIndex => ({pageIndex: {$set: pageIndex}})
+    }
 });
 
 export const DemoOfTabs = Component.createClass({

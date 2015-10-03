@@ -60,7 +60,7 @@ DOMBuilder.DEKU = new DOMBuilder({
 
         if (tag.prototype instanceof Component) {
             ret = {
-                type: tag.toDeku(),
+                type: tag.convertTo('deku'),
                 attributes: props,
                 children: children
             }

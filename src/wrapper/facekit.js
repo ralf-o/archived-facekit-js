@@ -4,6 +4,13 @@ import Component from '../main/js/base/Component';
 import Element from '../main/js/base/Element';
 import DOMBuilder from '../main/js/base/DOMBuilder';
 
+import DekuComponentAdapter from '../main/js/adapters/DekuComponentAdapter';
+import ReactComponentAdapter from '../main/js/adapters/ReactComponentAdapter';
+
+Component.registerComponentAdapter('deku', new DekuComponentAdapter());
+Component.registerComponentAdapter('react', new ReactComponentAdapter());
+
+
 window.facekit = window.facekit || {
     base: {
         Component, Element, DOMBuilder
@@ -52,10 +59,10 @@ for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
           Component.registerWebComponent(componentClass, elementName);
     }
 
-    facekit.react[componentClassName] = componentClass.toReact();
-    facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).toReact();
-    facekit.deku[componentClassName] = componentClass.toDeku();
-    facekit.deku[componentFunctionName] = (...args) => componentClass.createElement(...args).toDeku();
+    facekit.react[componentClassName] = componentClass.convertTo('react');
+    facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).convertTo('react');
+    facekit.deku[componentClassName] = componentClass.convertTo('deku');
+    facekit.deku[componentFunctionName] = (...args) => componentClass.createElement(...args).convertTo('deku');
 
     if (angularModule) {
         angularModule.directive('fk' + componentClassName, () => componentClass.toAngular());
@@ -82,10 +89,10 @@ for (let demoClassName of Object.getOwnPropertyNames(demoClasses)) {
         demoClass = demoClasses[demoClassName],
         demoFunctionName = demoClassName.charAt(0).toLowerCase() + demoClassName.slice(1);
 
-     demo.react[demoClassName] = demoClass.toReact();
-     demo.react[demoFunctionName] = () => demoClass.createElement({}, []).toReact();
-     demo.deku[demoClassName] = demoClass.toDeku();
-     demo.deku[demoFunctionName] = () => demoClass.createElement({}, []).toDeku();
+     demo.react[demoClassName] = demoClass.convertTo('react');
+     demo.react[demoFunctionName] = () => demoClass.createElement({}, []).convertTo('react');
+     demo.deku[demoClassName] = demoClass.convertTo('deku');
+     demo.deku[demoFunctionName] = () => demoClass.createElement({}, []).convertTo('deku');
 
      if (angularModule) {console.log(demoFunctionName)
         angularModule.directive(demoFunctionName, () => demoClass.toAngular());
