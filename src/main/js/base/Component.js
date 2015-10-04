@@ -24,69 +24,18 @@ export default class Component {
     }
 
     static mount(component, target) {
-        var ret;
+        let responsibleAdapter = null;
 
-        const domElement = typeof target === 'string'
-            ? document.querySelector(target)
-            : target;
+        for (let adapterName of Object.getOwnPropertyNames(registeredComponentAdapters)) {
+            const adapter = registeredComponentAdapters[adapterName];
 
-        if (!domElement) {
-            ret = false;
-        } else {
-            const
-                dekuAvailable = typeof deku === 'object' && deku && typeof deku.render === 'function',
-                reactAvailable = typeof React === 'object' && React && typeof React.render === 'function';
-
-            if (!dekuAvailable && !reactAvailable) {
-                throw new Error('[Component.mount] Neither react nor deku are available as render engines');
+            if (adapter.isMountable(component)) {console.log(444, adapterName)
+                responsibleAdapter = adapter;
+                break;
             }
-
-            var uiKitToUse = null,
-                uiComponentToMount = null;
-
-            if (typeof component === 'function' && component.prototype instanceof Component) {
-                uiKitToUse = 'deku';
-                uiComponentToMount = new Element(component, {}, []).convertTo('deku');
-            } else if (component instanceof Element) {
-                if (dekuAvailable) {
-                    uiKitToUse = 'deku';
-                    uiComponentToMount = component.convertTo('deku');
-                } else if (reactAvailable) {
-                    uiKitToUse = 'react';
-                    uiComponentToMount = component.toReact();
-                }
-            } else if (reactAvailable && React.isValidElement(component)) {
-                uiKitToUse = 'react';
-                uiComponentToMount = component;
-            } else if (dekuAvailable && component.type && typeof component.type === 'object') {
-                uiKitToUse = 'deku';
-                uiComponentToMount = component;
-            } else {
-                console.error('Invalid component:', component);
-                throw new TypeError("[Component.mount] First argument 'component' is not a valid component");
-            }
-
-            if (uiKitToUse === 'deku') {
-                const mounting = deku.render(deku.tree(uiComponentToMount), domElement);
-
-                domElement.__unmountComponent = () => {
-                    mounting.remove();
-                    delete domElement.__unmount;
-                }
-            } else if (uiKitToUse === 'react') {
-                React.render(uiComponentToMount, domElement);
-
-                domElement.__unmountComponent = () => {
-                    React.unmountComponentAtNode(domElement);
-                    delete domElement.__unmount;
-                }
-            }
-
-
-            ret = true;
         }
-
-        return ret;
+console.log(3333, responsibleAdapter)
+        return (responsibleAdapter && responsibleAdapter.mount(component, target));
     }
 
     static unmount(target) {

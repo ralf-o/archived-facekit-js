@@ -104,4 +104,25 @@ export default class DekuComponentAdapter extends AbstractComponentAdapter {
 
         return ret;
     }
+
+    isMountable(obj) {console.log(0, obj, obj && typeof obj === 'object' && typeof obj.type === 'object')
+        return obj && typeof obj === 'object' && typeof obj.type === 'object';
+    }
+
+    mount(obj, domElement) {
+        var ret;
+
+        if (!this.isMountable(obj) || !domElement || typeof domElement.appendChild !== 'function') {
+            ret = false;
+        } else {
+            const mounting = deku.render(deku.tree(obj), domElement);
+
+            domElement.__unmountComponent = () => {
+                mounting.remove();
+                delete domElement.__unmount;
+            }
+
+            ret = true;
+        }
+    }
 }

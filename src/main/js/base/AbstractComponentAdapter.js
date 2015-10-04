@@ -10,7 +10,17 @@ export default class AbstractComponentAdapter {
 
     convertElement(element) {
         throw Error('[Extension of AbstractComponentAdapter] '
-                + "Abstract method 'convertElement' not implemented");
+                + "Abstract method 'convertElement' has not been implemented");
+    }
+
+    isMountable(obj) {
+        throw Error('[Extension of AbstractComponentAdapter] '
+                + "Abstract method 'isMountable' has not been implemented");
+    }
+
+    mount(obj, domElement) {
+        throw Error('[Extension of AbstractComponentAdapter] '
+                + "Abstract method 'mount' has not been implemented");
     }
 
     createStateController(componentClass, getState, setState) {

@@ -16,7 +16,9 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-esdoc": "0.0.1",
     "immutable": "^3.7.4",
+    "mercury": "^14.0.0",
     "react": "^0.13.3",
-    "shrinkwrap": "^0.4.0"
+    "shrinkwrap": "^0.4.0",
+    "virtual-dom": "^2.1.1"
   }
 }

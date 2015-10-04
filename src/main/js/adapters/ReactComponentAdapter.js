@@ -9,17 +9,39 @@ import PropsReader from '../base/PropsReader';
 const {Objects, Seq, Reader} = mojo;
 
 export default class ReactAdapter extends AbstractComponentAdapter {
+    isMountable(obj) {console.log(45555, obj)
+        return obj && typeof obj === 'object' && React.isValidElement(obj);
+    }
+
+    mount(obj, domElement) {
+        var ret;
+
+        if (!this.isMountable(obj) || !domElement || typeof domElement.appendChild !== 'function') {
+            ret = false;
+        } else {
+            React.render(obj, domElement);
+
+            domElement.__unmountComponent = () => {
+                React.unmountComponentAtNode(domElement);
+                delete domElement.__unmount;
+            }
+
+            ret = true;
+        }
+
+        return ret;
+    }
+
     convertElement(element) {
         var ret;
 
         const
             tag = element.getTag(),
             props = element.getProps(),
-            children = Seq.from(element.getChildren()).map(child => child instanceof Element ? this.convertElement(child) : child), // TODO
+            reactChildren = Seq.from(element.getChildren()).map(child => child instanceof Element ? this.convertElement(child) : child), // TODO
             reactProps = Objects.shallowCopy(props instanceof Reader ? props.__data : props); // TODO
 
-        reactProps.children = Seq.from(children)
-                .map(child => child && child.toReact ? child.toReact() : child).toArray(); // TODO
+        reactProps.children = reactChildren.toArray();
 
         if (typeof tag === 'string') {
             ret = React.createElement(tag, reactProps);
@@ -65,7 +87,7 @@ class ReactComponent extends React.Component {
         this.__cleanupCallback = null;
     }
 
-    render() {console.log(this.__componentAdapter)
+    render() {
         const
             componentClass = this.__originalComponentClass,
             stateTransitions = componentClass.getStateTransitions(),
