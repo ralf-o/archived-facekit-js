@@ -1,13 +1,13 @@
 'use strict';
 
 import Element from '../base/Element';
-import AbstractComponentAdapter from '../base/AbstractComponentAdapter';
+import ComponentAdapter from '../base/ComponentAdapter';
 import DOMBuilder from '../base/DOMBuilder';
 import PropsReader from '../base/PropsReader';
 
 const {Objects, Seq, Reader} = mojo;
 
-export default class DekuComponentAdapter extends AbstractComponentAdapter {
+export default class DekuComponentAdapter extends ComponentAdapter {
     convertElement(element) {
         var ret;
         
@@ -56,6 +56,26 @@ export default class DekuComponentAdapter extends AbstractComponentAdapter {
             };
         } else {
             throw "This should never happen: " + tag;
+        }
+
+        return ret;
+    }
+
+    createElement(tag, props, children) {
+        var ret;
+
+        const
+            tagType = typeof tag;
+            reactProps = Objects.shallowCopy(props);
+
+        reactProps.children = children;
+
+        if (tagType === 'string') {
+            ret = React.createElement(tag, props)
+        } else if (tagType === 'function' && tag.prototype instanceof Component) {
+            ret = React.createElement(tag.convertTo('react'), tag, props);
+        } else {
+            throw "What happened?!?"
         }
 
         return ret;

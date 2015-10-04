@@ -52,9 +52,8 @@ function buildAnchorListItem(html, text, isActive, props, pageIndexToMove) {
             className: isActive ? 'active' : ''
         },
         html.a({
-                onClick: evt => props.get('onChange')({pageIndex: pageIndexToMove})
-            },
-            text)
+            onClick: evt => props.get('onChange')({pageIndex: pageIndexToMove})
+        }, text)
     );
 }
 

@@ -35,10 +35,6 @@ $uiSwitchers.each((idx, elem) => {
                     Component.mount(getReactDemo(), contentContainer);
                     break;
 
-                case 'mercury':
-                    Component.mount(getMercuryDemo(), contentContainer);
-                    break;
-
                  case 'web-components':
                     $(contentContainer)
                         .append(document.registerElement ? '<fk-demo/>' : 'Your browser does not support web components :-(');
@@ -109,8 +105,4 @@ function getReactDemo() {
             </react.Tab>
         </react.Tabs>
      );
-}
-
-function getMercuryDemo() {console.log(78787,  demo.mercury.demoOfCounter.render)
-    return demo.mercury.demoOfCounter();
 }

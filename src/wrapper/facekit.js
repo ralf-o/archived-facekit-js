@@ -6,11 +6,9 @@ import DOMBuilder from '../main/js/base/DOMBuilder';
 
 import DekuComponentAdapter from '../main/js/adapters/DekuComponentAdapter';
 import ReactComponentAdapter from '../main/js/adapters/ReactComponentAdapter';
-import MercuryComponentAdapter from '../main/js/adapters/MercuryComponentAdapter';
 
 Component.registerComponentAdapter('deku', new DekuComponentAdapter());
 Component.registerComponentAdapter('react', new ReactComponentAdapter());
-Component.registerComponentAdapter('mercury', new MercuryComponentAdapter());
 
 
 window.facekit = window.facekit || {
@@ -18,8 +16,7 @@ window.facekit = window.facekit || {
         Component, Element, DOMBuilder
     },
     react: {},
-    deku: {},
-    mercury: {}
+    deku: {}
 };
 
 import FkButton from '../main/js/components/Button';
@@ -66,8 +63,6 @@ for (let componentClassName of Object.getOwnPropertyNames(componentClasses)) {
     facekit.react[componentFunctionName] = (...args) => componentClass.createElement(...args).convertTo('react');
     facekit.deku[componentClassName] = componentClass.convertTo('deku');
     facekit.deku[componentFunctionName] = (...args) => componentClass.createElement(...args).convertTo('deku');
-    facekit.mercury[componentClassName] = componentClass.convertTo('mercury');
-    facekit.mercury[componentFunctionName] = (...args) => componentClass.createElement(...args).convertTo('mercury');
 
     if (angularModule) {
         angularModule.directive('fk' + componentClassName, () => componentClass.toAngular());
@@ -86,8 +81,7 @@ const demoClasses = {
 
 window.demo = {
     react: {},
-    deku: {},
-    mercury: {}
+    deku: {}
 };
 
 for (let demoClassName of Object.getOwnPropertyNames(demoClasses)) {
@@ -99,8 +93,6 @@ for (let demoClassName of Object.getOwnPropertyNames(demoClasses)) {
      demo.react[demoFunctionName] = () => demoClass.createElement({}, []).convertTo('react');
      demo.deku[demoClassName] = demoClass.convertTo('deku');
      demo.deku[demoFunctionName] = () => demoClass.createElement({}, []).convertTo('deku');
-     demo.mercury[demoClassName] = demoClass.convertTo('mercury');
-     demo.mercury[demoFunctionName] = () => demoClass.createElement({}, []).convertTo('mercury');
 
      if (angularModule) {
         angularModule.directive(demoFunctionName, () => demoClass.toAngular());

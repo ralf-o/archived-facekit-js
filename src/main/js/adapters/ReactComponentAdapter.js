@@ -2,13 +2,13 @@
 
 import Component from '../base/Component';
 import Element from '../base/Element';
-import AbstractComponentAdapter from '../base/AbstractComponentAdapter';
+import ComponentAdapter from '../base/ComponentAdapter';
 import DOMBuilder from '../base/DOMBuilder';
 import PropsReader from '../base/PropsReader';
 
 const {Objects, Seq, Reader} = mojo;
 
-export default class ReactAdapter extends AbstractComponentAdapter {
+export default class ReactAdapter extends ComponentAdapter {
     isMountable(obj) {console.log(45555, obj)
         return obj && typeof obj === 'object' && React.isValidElement(obj);
     }
